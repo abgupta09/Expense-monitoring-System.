@@ -23,8 +23,8 @@ dataBase_name = "ExpenseManagDB"
 DB_URI = "mongodb+srv://abgupta:{}@cluster0.u08th6y.mongodb.net/{}?retryWrites=true&w=majority".format(password, dataBase_name)
 db.connect(host=DB_URI, tlsCAFile=certifi.where())
 
-# Constants
-SECRET_KEY = "your_secret_key_here"  # Choose a strong secret key for JWT
+# key and config
+SECRET_KEY = "your_secret_key_here" 
 app.config['SECRET_KEY'] = "your_secret_key_here"
 
 # User Model
