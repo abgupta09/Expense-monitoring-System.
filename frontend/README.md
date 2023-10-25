@@ -1,4 +1,4 @@
-# Personal Expense Manager React App
+# Expense Monitoring System
 
 ## Available Scripts
 
