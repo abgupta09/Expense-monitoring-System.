@@ -48,6 +48,7 @@ def settle_expenses(expenses):
 expenses = [
     {"payer": "A", "amount": 100, "shares": {"A": 50, "B": 30, "C": 20}},
     {"payer": "B", "amount": 50, "shares": {"A": 50, "B": 30, "C": 20}},
+    {"payer": "C", "amount": 120, "shares": {"A": 50, "B": 30, "C": 20}},
 ]
 
 print(settle_expenses(expenses))
