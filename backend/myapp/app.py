@@ -4,7 +4,7 @@ import bcrypt
 import certifi
 import jwt
 from datetime import datetime, timedelta
-from jwt.exceptions import ExpiredSignatureError, DecodeError
+from jwt import ExpiredSignatureError, DecodeError
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -18,7 +18,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 # Connect to MongoDB using mongoengine
-password = os.getenv("password")
+password =  "IcWKBLzlI8shsDHO" #os.getenv("password")
 dataBase_name = "ExpenseManagDB"
 DB_URI = "mongodb+srv://abgupta:{}@cluster0.u08th6y.mongodb.net/{}?retryWrites=true&w=majority".format(password, dataBase_name)
 db.connect(host=DB_URI, tlsCAFile=certifi.where())
@@ -43,6 +43,23 @@ class User(db.Document):
             "last_name": self.last_name,
             "email": self.email
         }
+    
+class PersonalExpense(db.Document):
+    user_id = db.ReferenceField(User, required=True)
+    amount = db.FloatField(required=True)
+    name = db.StringField(required=True)
+    date = db.DateTimeField(default=datetime.utcnow)
+
+    def to_json(self):
+        return {
+            "expense_id": str(self.id),
+            "user_id": str(self.user_id.id),
+            "amount": self.amount,
+            "name": self.name,
+            "date": self.date.strftime('%Y-%m-%d')
+        }
+
+
 
 @app.route('/api/users/register', methods=['POST'])
 def register_user():
@@ -121,6 +138,49 @@ def login():
         return jsonify({"success": True, "token": token, "data": user.to_json()}), 200
     else:
         return jsonify({"success": False, "message": "Invalid username or password"}), 401
+
+
+def get_user_id_from_token(token):
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        return decoded_token["user_id"]
+    except (ExpiredSignatureError, DecodeError):
+        return None
+
+
+@app.route('/api/personal_expenses/add', methods=['POST'])
+def add_expense():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    data = request.get_json()
+    amount = data.get('amount')
+    name = data.get('name')
+    date = data.get('date', datetime.utcnow())
+
+    if not amount or not name:
+        return jsonify({"success": False, "message": "Amount and name are required"}), 400
+
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    try:
+        if isinstance(date, str):
+            date = datetime.strptime(date, '%Y-%m-%d')
+    except ValueError:
+        return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+    new_expense = PersonalExpense(user_id=user, amount=amount, name=name, date=date).save()
+    return jsonify({"success": True, "message": "Expense added successfully", "data": new_expense.to_json()}), 201
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

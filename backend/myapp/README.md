@@ -19,6 +19,8 @@ Install the required libraries (Flask, Flask-MongoEngine, bcrypt) within your vi
 
 `pip install Flask Flask-MongoEngine bcrypt`
 
+`pip install PyJWT`
+
 `Update MongoDB Password`:
 replace YOUR_MONGODB_PASSWORD with the actual password for your MongoDB cluster.
 

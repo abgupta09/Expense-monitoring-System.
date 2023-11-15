@@ -29,13 +29,36 @@ function PersonalExpenseManager() {
         setBudget(parseFloat(tempBudget));
     };
 
-  const addExpense = (expense) => {
-    const newExpense = { 
-      ...expense, 
-      id: Date.now() 
-    };
-    setExpenses([...expenses, newExpense]);
-    setTotalSpent(totalSpent + expense.cost);
+    const addExpense = async (expense) => {
+      const token = localStorage.getItem('token'); // Retrieve the JWT token from local storage
+      if (!token) {
+          // Handle the case where the token is not available
+          console.error("User not authenticated");
+          return;
+      }
+  
+      try {
+          const response = await fetch('/api/expenses/add', { // Replace with your Flask API's URL
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': token  // Include the JWT token in the request header
+              },
+              body: JSON.stringify(expense)
+          });
+  
+          const data = await response.json();
+          if (response.ok) {
+              // Update the local state to reflect the new expense
+              setExpenses([...expenses, { ...expense, id: Date.now() }]);
+              setTotalSpent(totalSpent + expense.cost);
+          } else {
+              // Handle any errors returned from the server
+              console.error(data.message);
+          }
+      } catch (error) {
+          console.error("Error adding expense:", error);
+      }
   };
 
   const deleteExpense = (id) => {
