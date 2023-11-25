@@ -1,4 +1,28 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+async function loginUser(credentials, navigate, setErrorMessage) {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/users/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentials),
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            localStorage.setItem('token', result.token);
+            navigate('/personal');
+        } else {
+            setErrorMessage(result.message);
+        }
+    } catch (error) {
+        setErrorMessage('There was an error logging in. Please try again.');
+    }
+}
+
 
 function RegisterPage() {
     const [formData, setFormData] = useState({
@@ -9,6 +33,9 @@ function RegisterPage() {
         password: '',
         confirmPassword: '',
     });
+
+    const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleChange = (e) => {
         setFormData({
@@ -44,8 +71,10 @@ function RegisterPage() {
             const data = await response.json();
     
             if (response.ok) {
+                localStorage.removeItem('token');
                 // Handle successful registration, e.g., redirect to login page or show a success message
                 alert('Registered successfully!');
+                await loginUser({ username: formData.username, password: formData.password }, navigate, setErrorMessage);
             } else {
                 // Handle errors from the server, e.g., display an error message
                 alert(data.message || 'Registration failed!');
@@ -61,6 +90,7 @@ function RegisterPage() {
     return (
         <div className="register-container">
             <h2>Register</h2>
+            {errorMessage && <div className="error-message">{errorMessage}</div>}
             <form onSubmit={handleSubmit}>
                 <div className="input-group">
                     <label htmlFor="firstName">First Name</label>

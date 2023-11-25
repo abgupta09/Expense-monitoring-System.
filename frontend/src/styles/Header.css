@@ -33,8 +33,33 @@
     height: 40px;
     border-radius: 50%;
     border: 2px solid #fff;
+    z-index: 2;
+    display: block;
 }
 
+.dropdown {
+    position: absolute;
+    right: 0;
+    background-color: #272525;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+  
+.dropdown-content {
+    display: none; /* Hidden by default */
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+  
+  /* .dropdown:hover .dropdown-content {
+    display: block;
+  } */
+  
+  .show {
+    display: block;
+  }
 
 @media (max-width: 768px) { 
     .header {

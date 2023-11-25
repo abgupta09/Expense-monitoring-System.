@@ -1,32 +1,115 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpenseForm from './ExpenseForm';
 import ExpenseList from './ExpenseList';
 import Header from './Header';
 import EditIcon from '@mui/icons-material/Edit';
 
 function PersonalExpenseManager() {
-    const initialExpenses = JSON.parse(localStorage.getItem('expenses')) || [];
+    const [expenses, setExpenses] = useState([]);
+    const [totalSpent, setTotalSpent] = useState(0);
     const initialBudget = JSON.parse(localStorage.getItem('budget')) || 1000;
-
-    const [expenses, setExpenses] = useState(initialExpenses);
-    const [totalSpent, setTotalSpent] = useState(
-        initialExpenses.reduce((sum, expense) => sum + expense.cost, 0)
-    );
     const [editingExpense, setEditingExpense] = useState(null);
     const [budget, setBudget] = useState(initialBudget); 
     const [tempBudget, setTempBudget] = useState(budget);
 
-    useEffect(() => {
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-        setTotalSpent(expenses.reduce((sum, expense) => sum + expense.cost, 0));
-    }, [expenses]);
+    const showAlert = (message) => {
+        alert(message);
+    };
+
+    const fetchExpenses = useCallback(async () => {
+        const token = localStorage.getItem('token'); 
+        if (!token) {
+            console.error("User not authenticated");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/personal_expenses', {
+                method: 'GET',
+                headers: {
+                    'Authorization': token
+                }
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setExpenses(data.expenses); // Assuming the API returns an array of expenses
+                setTotalSpent(data.expenses.reduce((sum, expense) => sum + expense.amount, 0));
+            } else {
+                console.error(data.message);
+            }
+        } catch (error) {
+            showAlert("Error fetching expenses: " + error.message);
+        }
+    }, []); // Add dependencies here if there are any
+
+
+
+    const fetchBudget = useCallback(async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showAlert("User not authenticated");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/users/get_budget', {
+                method: 'GET',
+                headers: {
+                    'Authorization': token
+                }
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setBudget(data.budget);
+                setTempBudget(data.budget);
+            } else {
+                showAlert(data.message);
+            }
+        } catch (error) {
+            showAlert("Error fetching budget: " + error.message);
+        }
+    }, []);
+
 
     useEffect(() => {
-        localStorage.setItem('budget', JSON.stringify(budget));
-    }, [budget]);
+        fetchExpenses();
+        fetchBudget();
+    }, [fetchExpenses, fetchBudget]);
+
+    const updateBudgetAPI = async (newBudget) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showAlert("User not authenticated");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/users/update_budget', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ budget: newBudget })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                showAlert("Budget updated successfully");
+            } else {
+                showAlert(data.message);
+            }
+        } catch (error) {
+            showAlert("Error updating budget: " + error.message);
+        }
+    };
 
     const updateBudget = () => {
-        setBudget(parseFloat(tempBudget));
+        const newBudget = parseFloat(tempBudget);
+        setBudget(newBudget);
+        updateBudgetAPI(newBudget);
     };
 
     const addExpense = async (expense) => {
@@ -38,52 +121,112 @@ function PersonalExpenseManager() {
       }
   
       try {
-          const response = await fetch('/api/expenses/add', { // Replace with your Flask API's URL
+          const response = await fetch('http://127.0.0.1:5000/api/personal_expenses/add', { 
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': token  // Include the JWT token in the request header
+                  'Authorization': token
               },
               body: JSON.stringify(expense)
           });
   
           const data = await response.json();
           if (response.ok) {
-              // Update the local state to reflect the new expense
-              setExpenses([...expenses, { ...expense, id: Date.now() }]);
-              setTotalSpent(totalSpent + expense.cost);
+            fetchExpenses();
           } else {
               // Handle any errors returned from the server
               console.error(data.message);
           }
       } catch (error) {
-          console.error("Error adding expense:", error);
+          showAlert("Error fetching expenses: " + error.message);
       }
   };
 
-  const deleteExpense = (id) => {
-    const updatedExpenses = expenses.filter(expense => expense.id !== id);
-    const expenseToDelete = expenses.find(expense => expense.id === id);
-    setTotalSpent(totalSpent - expenseToDelete.cost);
-    setExpenses(updatedExpenses);
+  const deleteExpense = async (id) => {
+    const token = localStorage.getItem('token'); // Retrieve the JWT token from local storage
+    if (!token) {
+      // Handle the case where the token is not available
+      console.error("User not authenticated");
+      showAlert("User not authenticated");
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/personal_expenses/delete/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': token
+        }
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        // Update the local state to reflect the deleted expense
+        const updatedExpenses = expenses.filter(expense => expense.id !== id);
+        setExpenses(updatedExpenses);
+        // Recalculate the total spent after deletion
+        setTotalSpent(updatedExpenses.reduce((sum, expense) => sum + expense.amount, 0));
+        showAlert("Expense deleted successfully");
+        fetchExpenses();
+      } else {
+        // Handle any errors returned from the server
+        console.error(data.message);
+        showAlert(data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+      showAlert("Error deleting expense: " + error.message);
+    }
   };
 
   const startEditExpense = (id) => {
-    setEditingExpense(expenses.find(expense => expense.id === id));
+    setEditingExpense(expenses.find(expense => expense.expense_id === id));
   };
 
-  const editExpense = (id, updatedExpense) => {
-    const expenseIndex = expenses.findIndex(expense => expense.id === id);
-    const updatedExpenses = [...expenses];
-    setTotalSpent(totalSpent - expenses[expenseIndex].cost + updatedExpense.cost);
-    updatedExpenses[expenseIndex] = updatedExpense;
-    setExpenses(updatedExpenses);
-    setEditingExpense(null);
-  };
+  const editExpense = async (expenseId, updatedExpenseData) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showAlert("User not authenticated");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/api/personal_expenses/edit/${expenseId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedExpenseData)
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            // Replace the existing expense with the updated one in the local state
+            const updatedExpenses = expenses.map(expense => {
+                if (expense.id === expenseId) {
+                    return { ...expense, ...updatedExpenseData };
+                }
+                return expense;
+            });
+            
+            setExpenses(updatedExpenses);
+            setTotalSpent(updatedExpenses.reduce((sum, expense) => sum + expense.amount, 0));
+            showAlert("Expense updated successfully");
+            setEditingExpense(null); // If you were using a modal or form to edit, close it here
+            fetchExpenses();
+        } else {
+            showAlert(data.message);
+        }
+    } catch (error) {
+        showAlert(`Error updating expense: ${error.message}`);
+    }
+};
+
 
   return (
     <div className="app-container">
-      <Header username="Kavya" productName="Personal Expense Manager" />
+      <Header/>
       <div className="section budget-section">
         <h3>Your Budget Overview</h3>
 

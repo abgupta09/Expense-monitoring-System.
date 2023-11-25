@@ -4,7 +4,9 @@ import EditIcon from '@mui/icons-material/Edit';
 
 function ExpenseList({ expenses, startEditExpense, deleteExpense }) {
 
-    const sortedExpenses = [...expenses].sort((a, b) => b.id - a.id);
+    console.log(expenses);
+
+    const sortedExpenses = [...expenses];
 
     return (
         <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #ccc' }}>
@@ -19,15 +21,15 @@ function ExpenseList({ expenses, startEditExpense, deleteExpense }) {
                 </thead>
                 <tbody>
                     {sortedExpenses.map((expense) => (
-                        <tr key={expense.id}>
+                        <tr key={expense.expense_id}>
                             <td>{expense.name}</td>
-                            <td>${expense.cost.toFixed(2)}</td>
-                            <td>{expense.date}</td>
+                            <td>${expense.amount.toFixed(2)}</td>
+                            <td>{new Date(expense.date).toLocaleDateString()}</td>
                             <td className='actions-column'>
-                                <button className='editExpense-button' onClick={() => startEditExpense(expense.id)}>
+                                <button className='editExpense-button' onClick={() => startEditExpense(expense.expense_id)}>
                                     <EditIcon style={{color:'black'}}/>
                                 </button>
-                                <button className='delete-button' onClick={() => deleteExpense(expense.id)}>
+                                <button className='delete-button' onClick={() => deleteExpense(expense.expense_id)}>
                                     <DeleteIcon color='error'/>
                                 </button>
                             </td>

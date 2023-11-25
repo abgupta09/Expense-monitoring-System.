@@ -2,7 +2,7 @@
 
 Create a virtual environment (optional but recommended):
 
-python -m venv venv
+python3 -m venv venv
 Activate the virtual environment:
 
 For Windows:
