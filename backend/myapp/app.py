@@ -7,14 +7,13 @@ from datetime import datetime, timedelta
 from jwt import ExpiredSignatureError, DecodeError
 from flask_cors import CORS
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 
 
 app = Flask(__name__)
-# CORS(app)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 # Connect to MongoDB using mongoengine
@@ -34,6 +33,7 @@ class User(db.Document):
     first_name = db.StringField(required=True)
     last_name = db.StringField(required=True)
     email = db.EmailField(required=True, unique=True)
+    budget = db.FloatField(required=False, default=1000.00)
     
     def to_json(self):
         return {
@@ -41,7 +41,8 @@ class User(db.Document):
             "username": self.username,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "email": self.email
+            "email": self.email,
+            "budget": self.budget
         }
     
 class PersonalExpense(db.Document):
@@ -140,12 +141,46 @@ def login():
         return jsonify({"success": False, "message": "Invalid username or password"}), 401
 
 
+@app.route('/api/users/profile', methods=['GET'])
+def get_user_profile():
+    # Extracting the token from the header
+    token = request.headers.get('Authorization')
+    print("@@@@@@ token: ", token)
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    # Getting the user ID from the token
+    user_id = get_user_id_from_token(token)
+
+    print('###### ', user_id)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 402
+
+    # Fetching the user from the database
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    # Returning the user's first name and last name
+    return jsonify({
+        "success": True,
+        "first_name": user.first_name,
+        "last_name": user.last_name
+    }), 200
+
+
+
 def get_user_id_from_token(token):
     try:
+        if token.startswith('Bearer '):
+            # Removing the 'Bearer ' prefix
+            token = token[7:]  
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         return decoded_token["user_id"]
-    except (ExpiredSignatureError, DecodeError):
+    except (ExpiredSignatureError, DecodeError) as e:
+        print(f"Token error: {e}")
         return None
+
 
 
 @app.route('/api/personal_expenses/add', methods=['POST'])
@@ -155,15 +190,18 @@ def add_expense():
         return jsonify({"success": False, "message": "Authentication token is missing"}), 401
 
     user_id = get_user_id_from_token(token)
+    print('user id:', user_id)
     if not user_id:
         return jsonify({"success": False, "message": "Invalid or expired token"}), 401
 
     data = request.get_json()
+    print("data \n:", data)
     amount = data.get('amount')
     name = data.get('name')
     date = data.get('date', datetime.utcnow())
 
     if not amount or not name:
+        print('here #######')
         return jsonify({"success": False, "message": "Amount and name are required"}), 400
 
     user = User.objects(id=user_id).first()
@@ -172,14 +210,144 @@ def add_expense():
 
     try:
         if isinstance(date, str):
-            date = datetime.strptime(date, '%Y-%m-%d')
+            # Updated to parse ISO 8601 format date string
+            date = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ')
     except ValueError:
-        return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DD"}), 400
+        return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DDTHH:MM:SS.sssZ"}), 400
 
     new_expense = PersonalExpense(user_id=user, amount=amount, name=name, date=date).save()
     return jsonify({"success": True, "message": "Expense added successfully", "data": new_expense.to_json()}), 201
 
+@app.route('/api/personal_expenses', methods=['GET'])
+def get_expenses():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
 
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    expenses = PersonalExpense.objects(user_id=user).order_by('-date')  # Fetch expenses for the user, ordered by date
+    return jsonify({
+        "success": True,
+        "expenses": [expense.to_json() for expense in expenses]
+    }), 200
+
+@app.route('/api/personal_expenses/delete/<expense_id>', methods=['DELETE'])
+def delete_expense(expense_id):
+    print("expense id #######: ", expense_id)
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    # Check if the expense belongs to the user
+    expense = PersonalExpense.objects(id=expense_id, user_id=user_id).first()
+    if not expense:
+        return jsonify({"success": False, "message": "Expense not found or does not belong to the user"}), 404
+
+    try:
+        # Delete the found expense
+        expense.delete()
+        return jsonify({"success": True, "message": "Expense deleted successfully"}), 200
+    except Exception as e:
+        # Handle any exceptions that occur during delete
+        print(str(e))
+        return jsonify({"success": False, "message": "An error occurred while trying to delete the expense"}), 500
+
+
+@app.route('/api/personal_expenses/edit/<expense_id>', methods=['PUT'])
+def edit_expense(expense_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    expense = PersonalExpense.objects(id=expense_id, user_id=user_id).first()
+    if not expense:
+        return jsonify({"success": False, "message": "Expense not found or does not belong to the user"}), 404
+
+    data = request.get_json()
+    print("$$$$$$ ", data)
+    amount = data.get('amount')
+    name = data.get('name')
+    date = data.get('date', datetime.utcnow())
+
+    if not amount or not name:
+        return jsonify({"success": False, "message": "Amount and name are required"}), 400
+
+    try:
+        if isinstance(date, str):
+            date = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ')
+    except ValueError:
+        return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DDTHH:MM:SS.sssZ"}), 400
+
+    try:
+        # Update the expense
+        expense.update(amount=amount, name=name, date=date)
+        return jsonify({"success": True, "message": "Expense updated successfully"}), 200
+    except Exception as e:
+        # Handle any exceptions that occur during update
+        print(str(e))
+        return jsonify({"success": False, "message": "An error occurred while trying to update the expense"}), 500
+
+@app.route('/api/users/update_budget', methods=['PUT'])
+def update_user_budget():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    data = request.get_json()
+    new_budget = data.get('budget')
+
+    if new_budget is None:
+        return jsonify({"success": False, "message": "Budget value is required"}), 400
+
+    try:
+        user.update(budget=new_budget)
+        return jsonify({"success": True, "message": "Budget updated successfully"}), 200
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "message": "An error occurred while trying to update the budget"}), 500
+
+@app.route('/api/users/get_budget', methods=['GET'])
+def get_user_budget():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    try:
+        return jsonify({"success": True, "budget": user.budget}), 200
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "message": "An error occurred while retrieving the budget"}), 500
 
 
 if __name__ == '__main__':

@@ -5,35 +5,47 @@ import '../styles/ExpenseForm.css';
 
 function ExpenseForm({ addExpense, editingExpense, editExpense }) {
     const [name, setName] = useState(editingExpense ? editingExpense.name : '');
-    const [cost, setCost] = useState(editingExpense ? editingExpense.cost : '');
+    const [amount, setCost] = useState(editingExpense ? editingExpense.amount : '');
     const [date, setDate] = useState(editingExpense ? editingExpense.date : '');
 
     const handleSubmit = (e) => {
         e.preventDefault();
     
-        let currentDate = date;
+        let currentDate = new Date();
+        let formattedDate = date;
     
-        if (!currentDate) {
-            currentDate = new Date().toISOString().split('T')[0];  // Format as YYYY-MM-DD
+        if (formattedDate) {
+            // Parse the selected date
+            const parsedDate = new Date(formattedDate);
+    
+            // Combine the selected date with the current time
+            parsedDate.setHours(currentDate.getHours(), currentDate.getMinutes(), currentDate.getSeconds(), currentDate.getMilliseconds());
+    
+            // Convert back to ISO string with time
+            formattedDate = parsedDate.toISOString();
+        } else {
+            // Use the current date and time if no date is provided
+            formattedDate = currentDate.toISOString();
         }
-    
-        const currentExpense = { name, cost: parseFloat(cost), date: currentDate };
+        
+        const currentExpense = { name, amount: parseFloat(amount), date: formattedDate };
     
         if (editingExpense) {
-            editExpense(editingExpense.id, currentExpense);
+            editExpense(editingExpense.expense_id, currentExpense);
         } else {
             addExpense(currentExpense);
         }
     
+        // Reset form fields
         setName('');
-        setCost(0);
+        setCost('');
         setDate('');
     };
 
     useEffect(() => {
         if (editingExpense) {
             setName(editingExpense.name);
-            setCost(editingExpense.cost);
+            setCost(editingExpense.amount);
             setDate(editingExpense.date);
         }
     }, [editingExpense]);
@@ -50,7 +62,7 @@ function ExpenseForm({ addExpense, editingExpense, editExpense }) {
                 />
                 <input 
                     type="number" 
-                    value={cost} 
+                    value={amount} 
                     onChange={e => setCost(e.target.value)} 
                     placeholder="Amount"
                     required
