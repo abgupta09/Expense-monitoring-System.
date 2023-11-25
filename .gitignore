@@ -1,4 +1,4 @@
 .DS_Store
 frontend/node_modules/
 backend/myapp/venv/
-backend/.DS_Store
+backend/.DS_Store.DS_Store
