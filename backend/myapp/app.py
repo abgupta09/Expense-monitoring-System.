@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import mongoengine as db
 import bcrypt
 import certifi
@@ -14,7 +14,9 @@ import os
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+# CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+app = Flask(__name__, static_folder='/app/frontend/build', static_url_path='')
+CORS(app)  # Enables CORS for all routes by default
 
 # Connect to MongoDB using mongoengine
 password =  "IcWKBLzlI8shsDHO" #os.getenv("password")
@@ -59,6 +61,15 @@ class PersonalExpense(db.Document):
             "name": self.name,
             "date": self.date.strftime('%Y-%m-%d')
         }
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 
 
@@ -351,5 +362,8 @@ def get_user_budget():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Heroku assigns a port defined by the environment variable PORT
+    # The host '0.0.0.0' makes the app accessible from outside your local machine
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
 
