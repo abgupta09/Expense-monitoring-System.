@@ -23,7 +23,7 @@ password = os.environ.get("MONGO_PASSWORD", "IcWKBLzlI8shsDHO")  # Default used 
 dataBase_name = "ExpenseManagDB"
 DB_URI = (
     f"mongodb+srv://abgupta:{password}@cluster0.u08th6y.mongodb.net/"
-    f"{dataBase_name}?retryWrites=true&w=majority&ssl=true"
+    f"{dataBase_name}?retryWrites=true&w=majority"
 )
 db.connect(host=DB_URI)
 
