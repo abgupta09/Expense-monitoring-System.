@@ -13,16 +13,19 @@ import os
 
 
 
-app = Flask(__name__)
+# app = Flask(__name__)
 # CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 app = Flask(__name__, static_folder='/app/frontend/build', static_url_path='')
 CORS(app)  # Enables CORS for all routes by default
 
 # Connect to MongoDB using mongoengine
-password =  "IcWKBLzlI8shsDHO" #os.getenv("password")
+password = os.environ.get("MONGO_PASSWORD", "IcWKBLzlI8shsDHO")  # Default used if not set in environment
 dataBase_name = "ExpenseManagDB"
-DB_URI = "mongodb+srv://abgupta:{}@cluster0.u08th6y.mongodb.net/{}?retryWrites=true&w=majority".format(password, dataBase_name)
-db.connect(host=DB_URI, tlsCAFile=certifi.where())
+DB_URI = (
+    f"mongodb+srv://abgupta:{password}@cluster0.u08th6y.mongodb.net/"
+    f"{dataBase_name}?retryWrites=true&w=majority&ssl=true&ssl_cert_reqs=CERT_NONE"
+)
+db.connect(host=DB_URI)
 
 # key and config
 SECRET_KEY = "your_secret_key_here" 
