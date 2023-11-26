@@ -24,7 +24,7 @@ function PersonalExpenseManager() {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/personal_expenses', {
+            const response = await fetch('/api/personal_expenses', {
                 method: 'GET',
                 headers: {
                     'Authorization': token
@@ -53,7 +53,7 @@ function PersonalExpenseManager() {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/users/get_budget', {
+            const response = await fetch('/api/users/get_budget', {
                 method: 'GET',
                 headers: {
                     'Authorization': token
@@ -86,7 +86,7 @@ function PersonalExpenseManager() {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/users/update_budget', {
+            const response = await fetch('/api/users/update_budget', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ function PersonalExpenseManager() {
       }
   
       try {
-          const response = await fetch('http://127.0.0.1:5000/api/personal_expenses/add', { 
+          const response = await fetch('/api/personal_expenses/add', { 
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ function PersonalExpenseManager() {
     }
   
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/personal_expenses/delete/${id}`, {
+      const response = await fetch(`/api/personal_expenses/delete/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': token
@@ -191,7 +191,7 @@ function PersonalExpenseManager() {
     }
 
     try {
-        const response = await fetch(`http://127.0.0.1:5000/api/personal_expenses/edit/${expenseId}`, {
+        const response = await fetch(`/api/personal_expenses/edit/${expenseId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': token,

@@ -45,7 +45,7 @@ function Header({ productName }) {
     useEffect(() => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (token) {
-            fetch('http://127.0.0.1:5000/api/users/profile', {
+            fetch('/api/users/profile', {
                 method: 'GET',
                 headers: { 
                     'Authorization': `Bearer ${token}`,

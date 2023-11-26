@@ -32,11 +32,11 @@ Save the provided code to a file, e.g., app.py. Then, run the script using:
 
 ##### Testing the Endpoint:
 
-With the API running (you should see a message like Running on http://127.0.0.1:5000/), you can test the registration endpoint.
+With the API running (you should see a message like Running on /), you can test the registration endpoint.
 
 You can use tools like Postman or curl from the command line to send a POST request:
 
-http://127.0.0.1:5000/api/users/register
+/api/users/register
 
 ##### Deactivate Virtual Environment:
 
