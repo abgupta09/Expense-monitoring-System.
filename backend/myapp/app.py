@@ -59,8 +59,44 @@ class PersonalExpense(db.Document):
             "name": self.name,
             "date": self.date.strftime('%Y-%m-%d')
         }
+    
+class Group(db.Document):
+    groupName = db.StringField(required=True)
+    admin = db.ReferenceField(User, required=True)  # The group creator or admin
+    members = db.ListField(db.ReferenceField(User), default=[])  # List of group members
+    date_created = db.DateTimeField(default=datetime.utcnow)  # Date and time of group creation
 
+    def to_json(self):
+        return {
+            "group_id": str(self.id),
+            "group_name": self.groupName,
+            "admin": str(self.admin.id),
+            "members": [str(member.id) for member in self.members],
+            "date_created": self.date_created.strftime('%Y-%m-%d %H:%M:%S')
+        }
+    
+class GroupExpense(db.Document):
+    group_id = db.ReferenceField(Group, required=True)
+    paidBy = db.ReferenceField(User, required=True)  # User who paid the expense
+    amount = db.FloatField(required=True)
+    description = db.StringField(required=True)
+    paid_for = db.StringField(required=True)  # Description of what the expense was for
+    splitMethod = db.StringField(required=True, choices=['equal', 'percentage', 'custom'])
+    splitDetails = db.DictField()  # Details of how the expense is split among members
+    date = db.DateTimeField(default=datetime.utcnow)  # Date and time of the expense
 
+    def to_json(self):
+        return {
+            "group_expense_id": str(self.id),
+            "group_id": str(self.group_id.id),
+            "paid_by": str(self.paidBy.id),
+            "amount": self.amount,
+            "description": self.description,
+            "paid_for": self.paid_for,
+            "split_method": self.splitMethod,
+            "split_details": self.splitDetails,
+            "date": self.date.strftime('%Y-%m-%d %H:%M:%S')
+        }
 
 @app.route('/api/users/register', methods=['POST'])
 def register_user():
@@ -348,6 +384,34 @@ def get_user_budget():
     except Exception as e:
         print(str(e))
         return jsonify({"success": False, "message": "An error occurred while retrieving the budget"}), 500
+
+
+@app.route('/api/groups/create', methods=['POST'])
+def create_group():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    data = request.get_json()
+    group_name = data.get('group_name')
+
+    if not group_name:
+        return jsonify({"success": False, "message": "Group name is required"}), 400
+
+    admin = User.objects(id=user_id).first()
+    if not admin:
+        return jsonify({"success": False, "message": "Admin user not found"}), 404
+
+    try:
+        new_group = Group(groupName=group_name, admin=admin).save()
+        return jsonify({"success": True, "message": "Group created successfully", "data": new_group.to_json()}), 201
+    except Exception as e:
+        return jsonify({"success": False, "message": "Error creating group", "error": str(e)}), 500
+
 
 
 if __name__ == '__main__':
