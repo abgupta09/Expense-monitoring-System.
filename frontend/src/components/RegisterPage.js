@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import Header from './Header';
+import '../styles/RegisterPage.css';
 function RegisterPage() {
     const [formData, setFormData] = useState({
         firstName: '',
@@ -59,36 +60,43 @@ function RegisterPage() {
     
 
     return (
-        <div className="register-container">
-            <h2>Register</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <label htmlFor="firstName">First Name</label>
-                    <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
-                </div>
-                <div className="input-group">
-                    <label htmlFor="lastName">Last Name</label>
-                    <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
-                </div>
-                <div className="input-group">
-                    <label htmlFor="username">Username</label>
-                    <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} required />
-                </div>
-                <div className="input-group">
-                    <label htmlFor="email">Email</label>
-                    <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
-                </div>
-                <div className="input-group">
-                    <label htmlFor="password">Password</label>
-                    <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
-                </div>
-                <div className="input-group">
-                    <label htmlFor="confirmPassword">Confirm Password</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
-                </div>
-                <button type="submit">Register</button>
-            </form>
+        <div>
+            <Header productName="Personal Expense Manager" />
+            <div className="register-container">
+                <h2>Register</h2>
+                <form className="reg-form"onSubmit={handleSubmit}>
+                    <fieldset>
+                        <div className="input-group">
+                            <label htmlFor="firstName">First Name</label>
+                            <input placeholder="Enter your first name" type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
+                        </div>
+                        <div className="input-group">
+                            <label htmlFor="lastName">Last Name</label>
+                            <input placeholder="Enter your last name" type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                        </div>
+                        <div className="input-group">
+                            <label htmlFor="username">Username</label>
+                            <input placeholder="Enter your username" type="text" id="username" name="username" value={formData.username} onChange={handleChange} required />
+                        </div>
+                        <div className="input-group">
+                            <label htmlFor="email">Email</label>
+                            <input placeholder="Enter your email" type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
+                        </div>
+                        <div className="input-group">
+                            <label htmlFor="password">Password</label>
+                            <input placeholder="Enter your password" type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
+                        </div>
+                        <div className="input-group">
+                            <label htmlFor="confirmPassword">Confirm Password</label>
+                            <input placeholder="Re-enter your password" type="password" id="confirmPassword" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
+                        </div>
+                    </fieldset>
+                    
+                    <button type="submit" className="login-btn">Register</button>
+                </form>
+            </div>
         </div>
+        
     );
 }
 

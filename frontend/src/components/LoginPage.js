@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.css';
+import Header from './Header';
 
 function LoginPage() {
     const [username, setUsername] = useState('');
@@ -44,39 +45,44 @@ function LoginPage() {
     };
 
     return (
-        <div className="login-container">
-            <h2>Login</h2>
-            {errorMessage && <div className="error-message">{errorMessage}</div>}
-            <form className="login-form" onSubmit={handleSubmit}>
-                <fieldset>
-                    <div className="input-group">
-                        <label htmlFor="username">Username</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Enter your username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                </fieldset>
-                <button type="submit" className="login-btn">Login</button>
-            </form>
+        <div>
+            <Header productName="Personal Expense Manager" />
+            <div className="login-container">
+                <h2>Login</h2>
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
+                <form className="login-form" onSubmit={handleSubmit}>
+                    <fieldset>
+                        <div className="input-group">
+                            <label htmlFor="username">Username</label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="input-group">
+                            <label htmlFor="password">Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                    </fieldset>
+                    <button type="submit" className="login-btn">Login</button>
+                </form>
+            </div>
         </div>
+        
+        
     );
 }
 
