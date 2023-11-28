@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
 body {
-  font-family: 'Open Sans', sans-serif;
-  background-color: #f4f4f4;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #c9d6ff;
+  background: linear-gradient(to right, #e2e2e2, #c9d6ff);
   margin: 0;
   padding: 0;
 }
@@ -29,7 +32,7 @@ form {
 }
 
 button {
-  background-color: #007BFF;
+  background-color: #512da8;
   color: #fff;
   padding: 10px 15px;
   border: 1px solid #ccc;  /* Added this line */
@@ -38,7 +41,7 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #512da8;
 }
 
 input[type="text"], input[type="number"], input[type="date"] {
@@ -63,7 +66,7 @@ th, td {
 }
 
 th {
-  background-color: #007BFF; 
+  background-color: #512da8; 
   color: #fff;                
   text-align: left;
 }
@@ -135,34 +138,41 @@ tr {
   margin-right: 5px;  /* adjust as desired */
 }
 
-.budget-display {
+/* .budget-display {
   display: flex;
   justify-content: space-between;
-}
+} */
 
 
 .budget-update {
   text-align: right;
+  width: 20%;
 }
 
 .label {
-  background-color: #065fe6;  /* Example: red shade */
+  background-color: #512da8;  /* Example: red shade */
   color: #fff;  /* White text color */
   padding: 5px;
   border-radius: 5px;
 }
 
 span {
-  color: #efefef;  /* Example: orange text for value */
+  color: #efefef;  
   font-style: italic;
   font-weight: bold;
 }
 
 .budget-display {
-  display: flex;  /* This will align your items horizontally */
+  display: flex;  
   justify-content: space-between;
   align-items: center;
   background-color: #fff;
+}
+
+.budget-update {
+  display: flex;  
+  justify-content: space-between;
+  align-items: center;
 }
 
 /* Tablet styles */
@@ -186,7 +196,7 @@ span {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #007BFF;
+  background-color: #512da8;
   color: #fff;
 }
 

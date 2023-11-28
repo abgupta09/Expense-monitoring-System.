@@ -7,6 +7,11 @@ from datetime import datetime, timedelta
 from jwt import ExpiredSignatureError, DecodeError
 from flask_cors import CORS
 import os
+import random
+import string
+import base64
+
+
 # from dotenv import load_dotenv
 
 # load_dotenv()
@@ -62,9 +67,20 @@ class PersonalExpense(db.Document):
     
 class Group(db.Document):
     groupName = db.StringField(required=True)
-    admin = db.ReferenceField(User, required=True)  # The group creator or admin
-    members = db.ListField(db.ReferenceField(User), default=[])  # List of group members
-    date_created = db.DateTimeField(default=datetime.utcnow)  # Date and time of group creation
+    admin = db.ReferenceField(User, required=True)
+    members = db.ListField(db.ReferenceField(User), default=[])
+    date_created = db.DateTimeField(default=datetime.utcnow)
+    passphrase = db.StringField(required=True, unique=True)
+
+    def generate_passphrase(self, length=16):
+        # Generate a random string of letters and digits
+        letters_and_digits = string.ascii_letters + string.digits
+        return ''.join(random.choice(letters_and_digits) for i in range(length))
+
+    def save(self, *args, **kwargs):
+        if not self.passphrase:
+            self.passphrase = self.generate_passphrase()
+        return super(Group, self).save(*args, **kwargs)
 
     def to_json(self):
         return {
@@ -72,7 +88,8 @@ class Group(db.Document):
             "group_name": self.groupName,
             "admin": str(self.admin.id),
             "members": [str(member.id) for member in self.members],
-            "date_created": self.date_created.strftime('%Y-%m-%d %H:%M:%S')
+            "date_created": self.date_created.strftime('%Y-%m-%d %H:%M:%S'),
+            "passphrase": self.passphrase
         }
     
 class GroupExpense(db.Document):
@@ -412,6 +429,49 @@ def create_group():
     except Exception as e:
         return jsonify({"success": False, "message": "Error creating group", "error": str(e)}), 500
 
+
+
+def generate_api_key(group_id, passphrase):
+    combined_key = f"{group_id}:{passphrase}"
+    encoded_key = base64.urlsafe_b64encode(combined_key.encode()).decode()
+    return encoded_key
+
+
+def decode_api_key(api_key):
+    decoded_key = base64.urlsafe_b64decode(api_key).decode()
+    group_id, passphrase = decoded_key.split(':', 1)
+    return group_id, passphrase
+
+
+@app.route('/api/groups/join', methods=['POST'])
+def join_group():
+    data = request.get_json()
+    user_id = get_user_id_from_token(request.headers.get('Authorization'))
+    api_key = data.get('api_key')
+
+    if not all([user_id, api_key]):
+        return jsonify({"success": False, "message": "Missing required parameters"}), 400
+
+    group_id, passphrase = decode_api_key(api_key)
+
+    if not all([user_id, group_id, passphrase]):
+        return jsonify({"success": False, "message": "Missing required parameters"}), 400
+
+    group = Group.objects(id=group_id, passphrase=passphrase).first()
+    if not group:
+        return jsonify({"success": False, "message": "Invalid group ID or passphrase"}), 404
+
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    if user in group.members:
+        return jsonify({"success": False, "message": "User already in group"}), 400
+
+    group.members.append(user)
+    group.save()
+
+    return jsonify({"success": True, "message": "Joined group successfully"}), 200
 
 
 if __name__ == '__main__':

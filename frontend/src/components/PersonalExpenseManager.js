@@ -231,22 +231,21 @@ function PersonalExpenseManager() {
         <h3>Your Budget Overview</h3>
 
         <div className="budget-display">
-          <h3 className="label">Spent: <span>${totalSpent.toFixed(2)}</span></h3>
-          <h3 className="label">Remaining: <span>${(budget - totalSpent).toFixed(2)}</span></h3>
-          <h3 className="label">Budget: <span>${budget.toFixed(2)}</span></h3>
-
-              <div className="budget-update">
-                  <input 
-                      type="number"
-                      value={tempBudget}
-                      onChange={e => setTempBudget(e.target.value)}
-                      placeholder="Set Budget"
-                      style={{height: '26px'}}
-                  />
-                  <button className='edit-budget-btn' onClick={updateBudget}>
-                  <EditIcon className='edit-budget-icon' fontSize='small'/>
-                  </button>
-              </div>
+            <h3 className="label">Spent: <span>${totalSpent.toFixed(2)}</span></h3>
+            <h3 className="label">Remaining: <span>${(budget - totalSpent).toFixed(2)}</span></h3>
+            <h3 className="label">Budget: <span>${budget.toFixed(2)}</span></h3>
+            <div className="budget-update">
+                <input 
+                    type="number"
+                    value={tempBudget}
+                    onChange={e => setTempBudget(e.target.value)}
+                    placeholder="Set Budget"
+                    style={{height: '26px'}}
+                />
+                <button className='edit-budget-btn' onClick={updateBudget}>
+                <EditIcon className='edit-budget-icon' fontSize='small'/>
+                </button>
+            </div>
           </div>              
       </div>
 
