@@ -8,7 +8,7 @@ function GroupManagement() {
     const [groups, setGroups] = useState([]);
     const [inviteAddress, setInviteAddress] = useState('');
     const [apiKey, setApiKey] = useState('');
-    // ... other state and function definitions
+  
 
     const showAlert = (message) => {
         alert(message);
@@ -33,7 +33,7 @@ function GroupManagement() {
             return;
         }
         sendInvite(inviteAddress);
-        setInviteAddress(''); // Reset the input field after sending the invite
+        setInviteAddress(''); 
     };
 
 
@@ -119,7 +119,7 @@ function GroupManagement() {
                         onChange={handleGroupNameChange}
                     />
                     <button onClick={handleAddGroupClick}>
-                        <AddIcon />  {/* Material-UI Add Icon */}
+                        <AddIcon />  
                     </button>
                 </div>
             </div>
