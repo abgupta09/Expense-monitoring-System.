@@ -22,7 +22,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 # Connect to MongoDB using mongoengine
-password =  "IcWKBLzlI8shsDHO" #os.getenv("password")
+password =  "" #os.getenv("password")
 dataBase_name = "ExpenseManagDB"
 DB_URI = "mongodb+srv://abgupta:{}@cluster0.u08th6y.mongodb.net/{}?retryWrites=true&w=majority".format(password, dataBase_name)
 db.connect(host=DB_URI, tlsCAFile=certifi.where())
