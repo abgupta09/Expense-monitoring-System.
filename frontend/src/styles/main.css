@@ -44,12 +44,13 @@ button:hover {
   background-color: #512da8;
 }
 
-input[type="text"], input[type="number"], input[type="date"] {
+input[type="text"], input[type="number"], input[type="date"], input[type="email"] {
   padding: 10px;
   margin-right: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
+
 
 table {
   width: 100%;
