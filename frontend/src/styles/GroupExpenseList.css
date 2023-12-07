@@ -1,0 +1,5 @@
+.scrollable-cell {
+    max-height: 50px; /* Adjust as needed */
+    overflow-y: auto;
+    overflow-x: hidden;
+}

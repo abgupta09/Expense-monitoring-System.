@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.css';
 
+
 function LoginPage() {
+    const [isSignUpActive, setIsSignUpActive] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-
+    const toggleSignUp = () => setIsSignUpActive(true);
+    const toggleSignIn = () => setIsSignUpActive(false);
+    
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleSignIn = async (e) => {
         e.preventDefault();
 
         // Data to be sent to the API
@@ -43,39 +47,71 @@ function LoginPage() {
         }
     };
 
+    const handleSignUp = async (e) => {
+        e.preventDefault();
+        // Implement sign-up logic here
+    };
+
     return (
-        <div className="login-container">
-            <h2>Login</h2>
-            {errorMessage && <div className="error-message">{errorMessage}</div>}
-            <form className="login-form" onSubmit={handleSubmit}>
-                <fieldset>
-                    <div className="input-group">
-                        <label htmlFor="username">Username</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Enter your username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
+        <div className='login-page'>
+            <div className={`containerLogin ${isSignUpActive ? 'active' : ''}`}>
+                <div className="form-container sign-up">
+                    <form onSubmit={handleSignUp}>
+                        <h1>Create Account</h1>
+                        <div className="social-icons">
+                            {/* Social Icons */}
+                        </div>
+                        <span>or use your email for registration</span>
+                        <input type="text" placeholder="Name" />
+                        <input type="email" placeholder="Email" />
+                        <input type="password" placeholder="Password" />
+                        <button>Sign Up</button>
+                    </form>
+                </div>
+
+                <div className="form-container sign-in">
+                    <form onSubmit={handleSignIn}>
+                        <h1>Sign In</h1>
+                        <div className="social-icons">
+                            {/* Social Icons */}
+                        </div>
+                        <span>or use your email password</span>
+                        <input 
+                            type="text" 
+                            placeholder="Username" 
+                            value={username} 
+                            onChange={(e) => setUsername(e.target.value)} 
                         />
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
+                        <input 
+                            type="password" 
+                            placeholder="Password" 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
                         />
+                        <a href="#">Forget Your Password?</a>
+                        {errorMessage && <div className="error-message">{errorMessage}</div>}
+                        <button>Sign In</button>
+                    </form>
+                </div>
+
+                <div className="toggle-container">
+                    <div className="toggle">
+                        <div className="toggle-panel toggle-left" onClick={toggleSignIn}>
+                            <h1>Welcome Back!</h1>
+                            <p>To keep connected with us please login with your personal info</p>
+                            <button id="signIn">Sign In</button>
+                        </div>
+                        <div 
+                            className="toggle-panel toggle-right" 
+                            onClick={toggleSignUp}
+                        >
+                            <h1>Hello, Friend!</h1>
+                            <p>Enter your personal details and start journey with us</p>
+                            <button id="signUp">Sign Up</button>
+                        </div>
                     </div>
-                </fieldset>
-                <button type="submit" className="login-btn">Login</button>
-            </form>
+                </div>
+            </div>
         </div>
     );
 }

@@ -1,4 +1,6 @@
 .expense-form-fields {
+    background-color: #c9d6ff;
+    background: linear-gradient(to right, #e2e2e2, #7e9af6);
     display: flex;
     justify-content: center;
     align-items: center;

@@ -1,0 +1,77 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.group-util-container {
+    display: flex;
+    justify-content: center; /* Horizontally center the children */
+    align-items: center; /* Vertically center the children */
+    flex-direction: column; /* Stack children vertically */
+    margin-top: 10px;
+    background-color: #c9d6ff;
+    background: linear-gradient(to right, #e2e2e2, #345fec);
+    padding: 10px;
+}
+.group-add-form button, .join-group-form button {
+    height: 40px; /* Consistent height for inputs and buttons */
+    margin: 5px;
+}
+
+.group-util-section {
+    width: 100%; /* Full width for each section */
+    display: flex;
+    justify-content: center; /* Horizontally center contents of each section */
+    align-items: center;
+}
+
+.group-add-form, .join-group-form {
+    display: flex;
+    justify-content: center; /* Center the form elements */
+    align-items: center; /* Align the form elements vertically */
+}
+
+.group-add-form {
+    display: flex; /* Use Flexbox for layout */
+    align-items: center; /* Align items vertically at the center */
+}
+
+.group-add-form input {
+    height: 25px; /* Set a consistent height for both input and button */
+}
+
+.group-add-form button {
+    height: 40px; /* Set a consistent height for both input and button */
+}
+
+.group-add-form button {
+    padding: 0 10px; /* Adjust padding for the button */
+    border: none; /* Optional: Removes border from the button */
+    color: white; /* Optional: Set text color for the button */
+    border-radius: 5px; /* Optional: Rounds the corners of the button */
+    cursor: pointer; /* Changes cursor to pointer on hover */
+}
+
+.group-add-form input {
+    flex-grow: 1; /* Allows the input to grow and fill available space */
+    border: 1px solid #ccc; /* Adds a border to the input field */
+    border-radius: 5px; /* Rounds the corners of the input field */
+    padding: 0 10px; /* Adds padding inside the input field */
+}
+
+
+/* Styles for larger screens */
+@media (min-width: 768px) {
+    .group-util-container {
+        flex-direction: row; /* Row layout for larger screens */
+        justify-content: space-around;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+    }
+
+    .group-util-section {
+        /* Adjust the width as necessary */
+        width: calc(33.333% - 20px);
+        flex-direction: row; /* Row layout for larger screens */
+    }
+}

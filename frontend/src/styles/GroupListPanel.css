@@ -1,0 +1,29 @@
+.group-list-panel {
+    width: 200px;
+    max-height: 600px;
+    overflow-y: auto;
+    border-right: 1px solid #140da0;
+    padding: 10px;
+}
+
+.group-item {
+    padding: 5px;
+    cursor: pointer;
+    
+}
+.group-item:hover {
+    /* Change color and/or background on hover */
+    color: #fff; /* Example hover text color */
+    background-color: #8ea0f1; /* Example hover background color */
+}
+.group-item.active {
+    background-color: #960a0a;
+    border-radius: 5px;
+    color: aliceblue;
+}
+
+.group-list-header {
+    text-align: center;
+    color: #333; /* Choose a color that fits your design */
+    margin-bottom: 10px; /* Spacing between the header and the list */
+}
