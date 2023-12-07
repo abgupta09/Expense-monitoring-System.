@@ -3,3 +3,22 @@
     overflow-y: auto;
     overflow-x: hidden;
 }
+
+/* table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+table tbody {
+    display: table;
+    width: 100%;
+} */
+
+/* Ensure buttons do not take too much space */
+.editExpense-button, .delete-button {
+    border: none;
+    background: none;
+    padding: 4px;
+    margin: 0 2px;
+}

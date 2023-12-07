@@ -23,7 +23,7 @@ label[for="splitMethodSelect"] {
     font-size: 14px; 
 }
 
-fieldset.members-fieldset, .payer-fieldset {
+fieldset.members-fieldset, .payer-fieldset, .split-method {
     border-color: #0026ff;
     border-style: solid; 
     border-width: 2px; 
@@ -62,4 +62,24 @@ fieldset.members-fieldset legend {
 .payer-fieldset select:focus {
     outline: none;
     border-color: #555;
+}
+
+.split-method select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+}
+
+.split-method legend {
+    font-weight: bold;
 }

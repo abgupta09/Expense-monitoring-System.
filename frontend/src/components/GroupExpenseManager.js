@@ -6,7 +6,7 @@ import "../styles/GroupExpenseManager.css"
 import GroupListPanel from './GroupListPanel';
 import GroupExpenseForm from './GroupExpenseForm';
 import GroupExpenseList from './GroupExpenseList';
-
+import PaymentSummary from './PaymentSummary';
 
 function GroupManagement() {
     const [groupName, setGroupName] = useState('');
@@ -16,6 +16,8 @@ function GroupManagement() {
     const [apiKey, setApiKey] = useState('');
     const [editingExpense, setEditingExpense] = useState(null);
     const [groupExpenses, setGroupExpenses] = useState([]);
+    const [showPaymentSummary, setShowPaymentSummary] = useState(false);
+    const [paymentSummaryData, setPaymentSummaryData] = useState([]);
 
     const showAlert = (message) => {
         alert(message);
@@ -43,6 +45,12 @@ function GroupManagement() {
         setInviteAddress(''); 
     };
 
+    const handleShowPaymentSummary = () => {
+        if (!showPaymentSummary) {
+            fetchPaymentSummary();
+        }
+        setShowPaymentSummary(!showPaymentSummary);
+    };
 
     const addGroup = async (groupName) => {
         const token = localStorage.getItem('token');
@@ -187,6 +195,8 @@ function GroupManagement() {
     }, [selectedGroup]);
 
     const addGroupExpense = async (expense) => {
+        console.log('Payment expense:\n', JSON.stringify(expense))
+
         // Ensure there is a selected group
         if (!selectedGroup) {
             showAlert("No group selected.");
@@ -317,6 +327,36 @@ function GroupManagement() {
         }
     };
 
+    const fetchPaymentSummary = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showAlert("User not authenticated");
+            return;
+        }
+    
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/api/groups/${selectedGroup}/settlement_summary`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+    
+            const data = await response.json();
+            if (response.ok) {
+                console.log("settlements: \n", data.settlements)
+
+                setPaymentSummaryData(data.settlements);
+                
+            } else {
+                showAlert(data.message);
+            }
+        } catch (error) {
+            showAlert(`Error fetching payment summary: ${error.message}`);
+        }
+    };
+    
+
     return (
         <div className="app-container">
             <Header/>
@@ -373,6 +413,17 @@ function GroupManagement() {
                 deleteGroupExpense={handleDeleteGroupExpense}
                 editGroupExpense={editGroupExpense}
             />
+            <div className='paymentSummary'>
+                <button className='paymentSummary-button' onClick={handleShowPaymentSummary}>
+                    {showPaymentSummary ? "Hide Payment Summary" : "Show Payment Summary"}
+                </button>
+                {showPaymentSummary && (
+                    <PaymentSummary
+                        paymentSummary={paymentSummaryData}
+                        currentUser='hola'
+                    />
+                )}
+            </div>
         </div>
     );
 }

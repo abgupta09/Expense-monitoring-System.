@@ -52,11 +52,17 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
     }, [groupMembers, editingExpense]);
     
 
-    const handlePaidForChange = (memberId) => {
-        setPaidFor((prevPaidFor) => ({
-            ...prevPaidFor,
-            [memberId]: !prevPaidFor[memberId]
-        }));
+    const handlePaidForChange = (memberId, isRadio) => {
+        if (isRadio) {
+            // For radio buttons, set the selected member as the only one marked in 'Paid For'
+            setPaidFor({ [memberId]: true });
+        } else {
+            // For checkboxes, toggle the check state
+            setPaidFor(prevPaidFor => ({
+                ...prevPaidFor,
+                [memberId]: !prevPaidFor[memberId]
+            }));
+        }
     };
 
     const handlePayerChange = (payerId) => {
@@ -84,6 +90,24 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
             payer: splitDetails.payer,
             amount: amount,
             shares: shares,
+        };
+    };
+
+    const calculatePaymentSplit = () => {
+        // Find the member who is marked as 'Paid For'
+        const paidForMemberId = Object.keys(paidFor).find(memberId => paidFor[memberId]);
+    
+        if (!paidForMemberId) {
+            throw new Error("Please select a member in 'Paid For'.");
+        }
+    
+        // Set the shares to 100% for the selected member
+        const shares = { [paidForMemberId]: 100 };
+    
+        return {
+            payer: payer,
+            amount: parseFloat(amount),
+            shares: shares
         };
     };
 
@@ -121,6 +145,9 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
                 case 'custom':
                     // Assuming custom split logic is already handled
                     expenseSplitDetails = splitDetails;
+                    break;
+                case 'payment':
+                    expenseSplitDetails = calculatePaymentSplit();
                     break;
                 default:
                     // Assuming equal split logic is already handled
@@ -193,16 +220,20 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
                     value={date} 
                     onChange={(e) => setDate(e.target.value)} 
                 />
-                <label htmlFor="splitMethodSelect">Split Method</label>
-                <select 
-                    value={splitMethod} 
-                    onChange={(e) => setSplitMethod(e.target.value)}
-                    id="splitMethodSelect"  // Adding an ID for the association with the label
-                >
-                    <option value="equal">Equal</option>
-                    <option value="percentage">Percentage</option>
-                    <option value="custom">Custom</option>
-                </select>
+                <fieldset className="split-method">
+                    <legend>Split Method</legend>
+                    <select 
+                        value={splitMethod} 
+                        onChange={(e) => setSplitMethod(e.target.value)}
+                        id="splitMethodSelect"  // Adding an ID for the association with the label
+                    >
+                        <option value="equal">Equal</option>
+                        <option value="percentage">Percentage</option>
+                        <option value="custom">Custom</option>
+                        <option value="payment">Payment</option>
+
+                    </select>
+                </fieldset>
                 <fieldset className="payer-fieldset">
                     <legend>Paid By</legend>
                     <select 
@@ -226,9 +257,11 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
                             <li key={member.user_id}>
                                 <label>
                                     <input
-                                        type="checkbox"
+                                        type={splitMethod === 'payment' ? 'radio' : 'checkbox'}
+                                        name="paidFor"
+                                        value={member.user_id}
                                         checked={!!paidFor[member.user_id]}
-                                        onChange={() => handlePaidForChange(member.user_id)}
+                                        onChange={() => handlePaidForChange(member.user_id, splitMethod === 'payment')}
                                     />
                                     {`${member.username} (${member.email})`}
                                 </label>

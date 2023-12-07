@@ -12,6 +12,7 @@ import string
 import base64
 from mongoengine.errors import ValidationError, DoesNotExist
 from bson import ObjectId
+from bill_settlement.bill_settle import settle_expenses
 
 # from dotenv import load_dotenv
 
@@ -106,7 +107,7 @@ class GroupExpense(db.Document):
     amount = db.FloatField(required=True)
     description = db.StringField(required=True)
     paid_for = db.ListField(db.ReferenceField(User))  # Description of what the expense was for
-    splitMethod = db.StringField(required=True, choices=['equal', 'percentage', 'custom'])
+    splitMethod = db.StringField(required=True, choices=['equal', 'percentage', 'custom', 'payment'])
     splitDetails = db.DictField()  # Details of how the expense is split among members
     date = db.DateTimeField(default=datetime.utcnow)  # Date and time of the expense
 
@@ -611,6 +612,7 @@ def add_expense_to_group(group_id):
         ).save()
         return jsonify({"success": True, "message": "Expense added successfully", "data": new_expense.to_json()}), 201
     except Exception as e:
+        print(str(e))
         return jsonify({"success": False, "message": "Error adding expense", "error": str(e)}), 500
 
 @app.route('/api/groups/<group_id>/expenses', methods=['GET'])
@@ -728,6 +730,62 @@ def delete_expense_from_group(group_id, expense_id):
         return jsonify({"success": True, "message": "Expense deleted successfully"}), 200
     except Exception as e:
         return jsonify({"success": False, "message": "Error deleting expense", "error": str(e)}), 500
+
+@app.route('/api/groups/<group_id>/settlement_summary', methods=['GET'])
+def get_settlement_summary(group_id):
+    # Step 1: Authenticate the user
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    # Step 2: Check if the group exists
+    group = Group.objects(id=group_id).first()
+    if not group:
+        return jsonify({"success": False, "message": "Group not found"}), 404
+
+    # Step 3: Check if the user is a member or admin of the group
+    is_member_or_admin = str(group.admin.id) == user_id or any(member.id == user_id for member in group.members)
+    if not is_member_or_admin:
+        return jsonify({"success": False, "message": "User is not authorized to view this information"}), 403
+
+    # Step 4: Retrieve and filter the expenses with split method 'equal'
+    try:
+        expenses = GroupExpense.objects(group_id=group, splitMethod__in=['equal', 'payment'])
+
+        # Prepare the data for the settlement calculation
+        expenses_data = []
+        for expense in expenses:
+            payer_id = str(expense.paidBy.id)
+            shares = {str(user.id): share for user, share in zip(expense.paid_for, expense.splitDetails['shares'].values())}
+            expenses_data.append({
+                "payer": payer_id,
+                "amount": expense.amount,
+                "shares": shares
+            })
+
+        # Calculate the settlements
+        print("####### ", expenses_data)
+        settlements = settle_expenses(expenses_data)
+
+        # Format the settlements for the response
+        settlements_json = [
+            {
+                'from': User.objects(id=debtor).first().username,
+                'to': User.objects(id=creditor).first().username,
+                'amount': amount
+            }
+            for debtor, creditor, amount in settlements
+        ]
+
+        return jsonify({"success": True, "settlements": settlements_json}), 200
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "message": "Error calculating settlements", "error": str(e)}), 500
 
 
 if __name__ == '__main__':
