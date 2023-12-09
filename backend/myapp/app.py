@@ -69,6 +69,7 @@ class PersonalExpense(db.Document):
     amount = db.FloatField(required=True)
     name = db.StringField(required=True)
     date = db.DateTimeField(default=datetime.utcnow)
+    category = db.StringField(required=True)
 
     def to_json(self):
         return {
@@ -76,8 +77,10 @@ class PersonalExpense(db.Document):
             "user_id": str(self.user_id.id),
             "amount": self.amount,
             "name": self.name,
-            "date": self.date.strftime('%Y-%m-%d')
+            "date": self.date.strftime('%Y-%m-%d'),
+            "category": self.category
         }
+
     
 class Group(db.Document):
     groupName = db.StringField(required=True)
@@ -397,7 +400,11 @@ def add_expense():
     amount = data.get('amount')
     name = data.get('name')
     date = data.get('date', datetime.utcnow())
+    category = data.get('category')
 
+    if not category:
+        return jsonify({"success": False, "message": "Category is required"}), 400
+    
     if not amount or not name:
         return jsonify({"success": False, "message": "Amount and name are required"}), 400
 
@@ -412,7 +419,7 @@ def add_expense():
     except ValueError:
         return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DDTHH:MM:SS.sssZ"}), 400
 
-    new_expense = PersonalExpense(user_id=user, amount=amount, name=name, date=date).save()
+    new_expense = PersonalExpense(user_id=user, amount=amount, name=name, date=date, category=category).save()
     return jsonify({"success": True, "message": "Expense added successfully", "data": new_expense.to_json()}), 201
 
 @app.route('/api/personal_expenses', methods=['GET'])

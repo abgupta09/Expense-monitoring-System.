@@ -16,6 +16,12 @@ function PersonalExpenseManager() {
         alert(message);
     };
 
+    const isCurrentMonth = (date) => {
+        const expenseDate = new Date(date);
+        const now = new Date();
+        return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
+    };
+
     const fetchExpenses = useCallback(async () => {
         const token = localStorage.getItem('token'); 
         if (!token) {
@@ -34,7 +40,8 @@ function PersonalExpenseManager() {
             const data = await response.json();
             if (response.ok) {
                 setExpenses(data.expenses); // Assuming the API returns an array of expenses
-                setTotalSpent(data.expenses.reduce((sum, expense) => sum + expense.amount, 0));
+                const currentMonthExpenses = data.expenses.filter(expense => isCurrentMonth(expense.date));
+                setTotalSpent(currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0));
             } else {
                 console.error(data.message);
             }
@@ -165,7 +172,8 @@ function PersonalExpenseManager() {
         const updatedExpenses = expenses.filter(expense => expense.id !== id);
         setExpenses(updatedExpenses);
         // Recalculate the total spent after deletion
-        setTotalSpent(updatedExpenses.reduce((sum, expense) => sum + expense.amount, 0));
+        const currentMonthExpenses = updatedExpenses.filter(expense => isCurrentMonth(expense.date));
+        setTotalSpent(currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0));
         showAlert("Expense deleted successfully");
         fetchExpenses();
       } else {
@@ -211,7 +219,8 @@ function PersonalExpenseManager() {
             });
             
             setExpenses(updatedExpenses);
-            setTotalSpent(updatedExpenses.reduce((sum, expense) => sum + expense.amount, 0));
+            const currentMonthExpenses = updatedExpenses.filter(expense => isCurrentMonth(expense.date));
+            setTotalSpent(currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0));
             showAlert("Expense updated successfully");
             setEditingExpense(null); // If you were using a modal or form to edit, close it here
             fetchExpenses();
