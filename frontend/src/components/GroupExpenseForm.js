@@ -16,6 +16,7 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
 
     useEffect(() => {
         if (editingExpense && groupMembers.length > 0) {
+
             // Set basic fields
             setAmount(editingExpense.amount.toString());
             setDescription(editingExpense.description);
@@ -111,21 +112,61 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
         };
     };
 
+    const handlePercentageChange = (memberId, percentage) => {
+        setSplitDetails(prevDetails => ({
+            ...prevDetails,
+            shares: { ...prevDetails.shares, [memberId]: parseFloat(percentage) || 0 }
+        }));
+    };
+
+    const handleCustomAmountChange = (memberId, amount) => {
+        const validAmount = Math.max(0, parseFloat(amount) || 0); // Ensures the value is not negative
+        setSplitDetails(prevDetails => ({
+            ...prevDetails,
+            shares: { ...prevDetails.shares, [memberId]: validAmount }
+        }));
+    };
+    
+
     const calculatePercentageSplit = () => {
         const totalPercentage = Object.values(splitDetails.shares).reduce((acc, share) => acc + share, 0);
-    
         if (totalPercentage !== 100) {
-            throw new Error("The sum of percentage shares must equal 100.");
+            alert("The sum of percentage shares must equal 100.");
+            return;
         }
-    
         return {
-            payer: splitDetails.payer,
-            amount: splitDetails.amount,
+            payer: payer,
+            amount: parseFloat(amount),
             shares: splitDetails.shares,
         };
     };
     
-
+    const calculateCustomSplit = () => {
+        const totalAmount = parseFloat(amount);
+        if (totalAmount <= 0) {
+            alert("Please enter a valid total amount.");
+            return;
+        }
+    
+        const shares = Object.fromEntries(
+            Object.entries(splitDetails.shares).map(([memberId, memberAmount]) => {
+                return [memberId, (memberAmount / totalAmount) * 100];
+            })
+        );
+        // Check if the sum of split amounts equals the total amount
+        const totalSplitAmount = Object.values(shares).reduce((acc, percentage) => acc + (percentage / 100) * totalAmount, 0);
+        if (totalSplitAmount.toFixed(2) !== totalAmount.toFixed(2)) {
+            alert("The sum of individual amounts must equal the total amount.");
+            return;
+        }
+    
+        return {
+            payer: payer,
+            amount: totalAmount,
+            shares: shares
+        };
+    };
+    
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!payer) {
@@ -143,20 +184,18 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
                     expenseSplitDetails = calculatePercentageSplit();
                     break;
                 case 'custom':
-                    // Assuming custom split logic is already handled
-                    expenseSplitDetails = splitDetails;
+                    expenseSplitDetails = calculateCustomSplit();
                     break;
                 case 'payment':
                     expenseSplitDetails = calculatePaymentSplit();
                     break;
                 default:
-                    // Assuming equal split logic is already handled
                     expenseSplitDetails = calculateEqualSplit();
                     break;
             }
         } catch (error) {
-            alert(error.message); // Alert the user of the error
-            return; // Return early from the function
+            alert(error.message); 
+            return; 
         }
         const currentExpense = {
             groupId: selectedGroup,
@@ -178,6 +217,7 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
             addGroupExpense(currentExpense); // Call add function if not editing
         }
 
+
         // clearing the form
         clearForm();
     };
@@ -190,6 +230,14 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
         setSplitMethod('equal');
         setPaidFor({});
         setPayer('');
+
+        const resetShares = groupMembers.reduce((acc, member) => {
+            acc[member.user_id] = ''; // Reset share to empty for each member
+            return acc;
+        }, {});
+    
+        setSplitDetails({ payer: '', amount: 0, shares: resetShares });
+
         cancelEdit(); // Call the function passed from the parent to cancel editing
     };
     
@@ -197,6 +245,7 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
         // Reset the form and clear the editing state
         clearForm();
     };
+
 
     return (
         <form className='expense-form-fields' onSubmit={handleSubmit}>
@@ -243,8 +292,10 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
                     >
                         <option value="">Select</option>
                         {groupMembers.map(member => (
-                            <option key={member.user_id} value={member.user_id}>
-                                {`${member.username} (${member.email})`}
+                            <option key={member.user_id} 
+                                value={member.user_id}
+                            >
+                            {`${member.username} (${member.email})`}
                             </option>
                         ))}
                     </select>
@@ -264,6 +315,24 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
                                         onChange={() => handlePaidForChange(member.user_id, splitMethod === 'payment')}
                                     />
                                     {`${member.username} (${member.email})`}
+                                    {splitMethod === 'percentage' && (
+                                        <input
+                                            type="number"
+                                            placeholder="%"
+                                            value={splitDetails.shares[member.user_id] || ''}
+                                            onChange={(e) => handlePercentageChange(member.user_id, e.target.value)}
+                                            style={{ marginLeft: '10px', width: '50px' }}
+                                        />
+                                    )}
+                                    {splitMethod === 'custom' && (
+                                        <input
+                                            type="number"
+                                            placeholder="$"
+                                            value={splitDetails.shares[member.user_id] || ''}
+                                            onChange={(e) => handleCustomAmountChange(member.user_id, e.target.value)}
+                                            style={{ marginLeft: '10px', width: '50px' }}
+                                        />
+                                    )}
                                 </label>
                             </li>
                         ))}

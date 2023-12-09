@@ -15,8 +15,6 @@ const PaymentSummary = ({ paymentSummary, currentUser }) => {
             .filter(([index, isChecked]) => isChecked)
             .map(([index]) => paymentSummary[index]);
 
-        // TODO: Replace with actual API call to submit the settlements
-        console.log('Submitting settlements:', settlementsToSubmit);
 
         // Reset the selected settlements after submission
         setSelectedSettlements({});

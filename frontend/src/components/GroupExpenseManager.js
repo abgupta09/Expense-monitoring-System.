@@ -7,6 +7,7 @@ import GroupListPanel from './GroupListPanel';
 import GroupExpenseForm from './GroupExpenseForm';
 import GroupExpenseList from './GroupExpenseList';
 import PaymentSummary from './PaymentSummary';
+import { jwtDecode } from "jwt-decode";
 
 function GroupManagement() {
     const [groupName, setGroupName] = useState('');
@@ -18,6 +19,10 @@ function GroupManagement() {
     const [groupExpenses, setGroupExpenses] = useState([]);
     const [showPaymentSummary, setShowPaymentSummary] = useState(false);
     const [paymentSummaryData, setPaymentSummaryData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasFetchedGroups, setHasFetchedGroups] = useState(false);
+    const [currentUser, setCurrentUser] = useState({});
+
 
     const showAlert = (message) => {
         alert(message);
@@ -31,9 +36,44 @@ function GroupManagement() {
         setInviteAddress(event.target.value);
     };
 
+    const fetchCurrentUser = () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const decoded = jwtDecode(token);
+            setCurrentUser(decoded); 
+        }
+    };
+
     const sendInvite = async () => {
-        // Logic to send an invite
-        // Example: send inviteAddress and group information to backend API
+        if (!inviteAddress) {
+            showAlert("Please enter an invite address.");
+            return;
+        }
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showAlert("User not authenticated");
+            return;
+        }
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/api/groups/${selectedGroup}/invite`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ email: inviteAddress })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                showAlert("Invitation sent successfully");
+                setInviteAddress('');
+            } else {
+                showAlert(data.message);
+            }
+        } catch (error) {
+            showAlert(`Error sending invite: ${error.message}`);
+        }
     };
 
     const handleSendInvite = () => {
@@ -84,7 +124,8 @@ function GroupManagement() {
 
     const handleGroupSelect = (groupId) => {
         setSelectedGroup(groupId);
-        fetchGroupExpenses(groupId)
+        fetchGroupExpenses(groupId);
+        setInviteAddress('');
     };
 
     const handleAddGroupClick = () => {
@@ -131,12 +172,14 @@ function GroupManagement() {
 
     useEffect(() => {
         fetchUserGroups();
+        fetchCurrentUser();
     }, []);
 
     const fetchUserGroups = async () => {
         const token = localStorage.getItem('token');
         if (!token) {
             showAlert("User not authenticated");
+            setIsLoading(false);
             return;
         }
 
@@ -151,13 +194,14 @@ function GroupManagement() {
             const data = await response.json();
             if (response.ok) {
                 setGroups(data.data); // Assuming data.data contains the array of groups
+                setHasFetchedGroups(true)
             } else {
                 showAlert(data.message);
             }
         } catch (error) {
             showAlert(`Error fetching groups: ${error.message}`);
         }
-
+        setIsLoading(false);
     };
 
     const [groupMembers, setGroupMembers] = useState([]);
@@ -179,7 +223,7 @@ function GroupManagement() {
 
             const data = await response.json();
             if (response.ok) {
-            setGroupMembers(data.members); // Assuming data.members is an array of member objects
+            setGroupMembers(data.members);
             } else {
             showAlert(data.message);
             }
@@ -195,8 +239,6 @@ function GroupManagement() {
     }, [selectedGroup]);
 
     const addGroupExpense = async (expense) => {
-        console.log('Payment expense:\n', JSON.stringify(expense))
-
         // Ensure there is a selected group
         if (!selectedGroup) {
             showAlert("No group selected.");
@@ -344,8 +386,6 @@ function GroupManagement() {
     
             const data = await response.json();
             if (response.ok) {
-                console.log("settlements: \n", data.settlements)
-
                 setPaymentSummaryData(data.settlements);
                 
             } else {
@@ -356,6 +396,7 @@ function GroupManagement() {
         }
     };
     
+    const hasGroups = groups.length > 0;
 
     return (
         <div className="app-container">
@@ -388,42 +429,62 @@ function GroupManagement() {
                     </div>
                 </div>
             </div>
-            <div className='groupView'>
-                <div className='groupList'>
+            {selectedGroup && (
+                <div className="group-invite-section">
+                    <input
+                        type="text"
+                        placeholder="Invite via Email"
+                        value={inviteAddress}
+                        onChange={(e) => setInviteAddress(e.target.value)}
+                    />
+                    <button onClick={sendInvite}>
+                        <SendIcon />
+                    </button>
+                </div>
+            )}
+            {!isLoading && hasFetchedGroups && !hasGroups ? (
+                <div className="no-group-message">
+                    <p>You are not part of any group. Please join or create a group.</p>
+                </div>
+            ):(
+                <div className='groupView'>
+                    <div className='groupList'>
                         <GroupListPanel 
                             groups={groups} 
                             selectedGroup={selectedGroup}
                             onGroupSelect={handleGroupSelect} 
                         /> 
-                </div>
-                <div className='group-expense-form'>
-                    <GroupExpenseForm
-                        selectedGroup={selectedGroup}
-                        groupMembers={groupMembers} 
-                        addGroupExpense={addGroupExpense}
-                        editingExpense={editingExpense}
-                        editGroupExpense={editGroupExpense}
-                        cancelEdit={handleCancelEdit}
+                    </div>
+                    <div className='group-expense-form'>
+                        <GroupExpenseForm
+                            selectedGroup={selectedGroup}
+                            groupMembers={groupMembers} 
+                            addGroupExpense={addGroupExpense}
+                            editingExpense={editingExpense}
+                            editGroupExpense={editGroupExpense}
+                            cancelEdit={handleCancelEdit}
+                            currentUser={currentUser}
                         />
-                </div>
-            </div>
-            <GroupExpenseList
-                groupExpenses={groupExpenses}
-                startEditGroupExpense={handleStartEditGroupExpense}
-                deleteGroupExpense={handleDeleteGroupExpense}
-                editGroupExpense={editGroupExpense}
-            />
-            <div className='paymentSummary'>
-                <button className='paymentSummary-button' onClick={handleShowPaymentSummary}>
-                    {showPaymentSummary ? "Hide Payment Summary" : "Show Payment Summary"}
-                </button>
-                {showPaymentSummary && (
-                    <PaymentSummary
-                        paymentSummary={paymentSummaryData}
-                        currentUser='hola'
+                    </div>
+                    <GroupExpenseList
+                        groupExpenses={groupExpenses}
+                        startEditGroupExpense={handleStartEditGroupExpense}
+                        deleteGroupExpense={handleDeleteGroupExpense}
+                        editGroupExpense={editGroupExpense}
                     />
-                )}
-            </div>
+                    <div className='paymentSummary'>
+                        <button className='paymentSummary-button' onClick={handleShowPaymentSummary}>
+                            {showPaymentSummary ? "Hide Payment Summary" : "Show Payment Summary"}
+                        </button>
+                        {showPaymentSummary && (
+                            <PaymentSummary
+                                paymentSummary={paymentSummaryData}
+                                currentUser='hola'
+                            />
+                        )}
+                    </div>
+                </div>
+            ) }
         </div>
     );
 }

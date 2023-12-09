@@ -2,7 +2,6 @@ import React from 'react';
 import '../styles/GroupListPanel.css';
 
 function GroupListPanel({ groups, selectedGroup, onGroupSelect }) {
-    console.log("$$$$$$$$$ ", groups)
     return (
         <div className="group-list-panel">
             <h2 className="group-list-header">Your Groups</h2>
