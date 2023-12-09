@@ -936,7 +936,79 @@ def get_settlement_summary(group_id):
         print(str(e))
         return jsonify({"success": False, "message": "Error calculating settlements", "error": str(e)}), 500
 
+#dashboard section
+
+@app.route('/api/dashboard/get_expenses', methods=['GET'])
+def get_expenses_by_date_range():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+    
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+    
+    expenses = PersonalExpense.objects(user_id=user).order_by('date')
+
+    start_date_str = request.args.get('start')
+    end_date_str = request.args.get('end')
+
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d') if start_date_str else None
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d') if end_date_str else None
+
+    if start_date:
+        expenses = expenses.filter(date__gte=start_date)
+    if end_date:
+        expenses = expenses.filter(date__lte=end_date)
+
+    return jsonify({
+        "success": True,
+        "expenses": [expense.to_json() for expense in expenses]
+    }), 200
+
+@app.route('/api/dashboard/get_all_expenses', methods=['GET'])
+def get_all_expenses():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    expenses = PersonalExpense.objects(user_id=user).order_by('date')  # Fetch expenses for the user, ordered by date
+    return jsonify({
+        "success": True,
+        "expenses": [expense.to_json() for expense in expenses]
+    }), 200
+
+@app.route('/api/dashboard/get_budget', methods=['GET'])
+def get_budget():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    try:
+        return jsonify({"success": True, "budget": user.budget}), 200
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "message": "An error occurred while retrieving the budget"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
-

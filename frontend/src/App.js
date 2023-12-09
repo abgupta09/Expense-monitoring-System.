@@ -6,7 +6,7 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import GroupExpenseManager from './components/GroupExpenseManager';
 import BottomNav from './components/BottomNav'; // Import your BottomNav component
-
+import Dashboard from './components/Dashboard'
 function App() {
   return (
     <Router>
@@ -16,7 +16,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/personal" element={<PersonalExpenseManager />} />
                 <Route path="/groups" element={<GroupExpenseManager />} />
-                <Route path="/dashboard" element={<GroupExpenseManager />} />
+                <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Box>
       <BottomNav /> {/* Render the BottomNav component */}

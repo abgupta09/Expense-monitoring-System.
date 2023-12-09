@@ -1,0 +1,26 @@
+.dashboard-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin: 10px;
+    width: 50%; /* each column takes up half of the container width */
+}
+
+.date-range-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjust the space between elements */
+    margin-bottom: 20px; /* Space below the date range picker */
+}
+
+.first-column {
+    border-right: 2px solid #ccc; /* Adjust the color and width as needed */
+}
+
