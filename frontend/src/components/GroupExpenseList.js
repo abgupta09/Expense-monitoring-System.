@@ -20,7 +20,12 @@ function GroupExpenseList({ groupExpenses, startEditGroupExpense, deleteGroupExp
     const sortedGroupExpenses = [...groupExpenses].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     return (
-        <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #ccc' }}>
+        <div className="group-table-responsive" style={{    
+            maxHeight: '300px', 
+            overflowY: 'auto', 
+            overflowX: 'auto', // Enable horizontal scrolling
+            border: '1px solid #ccc'
+        }}>
             <table>
                 <thead>
                     <tr>

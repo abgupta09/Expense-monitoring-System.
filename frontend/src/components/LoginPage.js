@@ -32,7 +32,6 @@ function LoginPage() {
             });
 
             const result = await response.json();
-            console.log(result)
             if (response.ok) {
                 // Assuming the API returns a token on successful login
                 localStorage.setItem('token', result.token);

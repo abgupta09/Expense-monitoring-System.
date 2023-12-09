@@ -4,7 +4,6 @@ import EditIcon from '@mui/icons-material/Edit';
 
 function ExpenseList({ expenses, startEditExpense, deleteExpense }) {
 
-    console.log(expenses);
 
     const sortedExpenses = [...expenses];
 

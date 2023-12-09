@@ -12,6 +12,8 @@ import string
 import base64
 from mongoengine.errors import ValidationError, DoesNotExist
 from bson import ObjectId
+from bill_settlement.bill_settle import settle_expenses
+from flask_mail import Mail, Message
 
 # from dotenv import load_dotenv
 
@@ -31,6 +33,17 @@ db.connect(host=DB_URI, tlsCAFile=certifi.where())
 # key and config
 SECRET_KEY = "your_secret_key_here" 
 app.config['SECRET_KEY'] = "your_secret_key_here"
+
+
+app.config["MAIL_SERVER"] = "smtp.fastmail.com"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USERNAME"] = "abhigupta@fastmail.com"
+app.config["MAIL_PASSWORD"] = "3rb9f8kufbyy2hv2"  # Add your mail password here
+app.config["MAIL_USE_TLS"] = False
+app.config["MAIL_USE_SSL"] = True
+mail = Mail(app)
+
+
 
 # User Model
 class User(db.Document):
@@ -106,7 +119,7 @@ class GroupExpense(db.Document):
     amount = db.FloatField(required=True)
     description = db.StringField(required=True)
     paid_for = db.ListField(db.ReferenceField(User))  # Description of what the expense was for
-    splitMethod = db.StringField(required=True, choices=['equal', 'percentage', 'custom'])
+    splitMethod = db.StringField(required=True, choices=['equal', 'percentage', 'custom', 'payment'])
     splitDetails = db.DictField()  # Details of how the expense is split among members
     date = db.DateTimeField(default=datetime.utcnow)  # Date and time of the expense
 
@@ -166,6 +179,88 @@ class GroupExpense(db.Document):
             print(f"Error in to_json: {e}")
             raise
 
+def send_email(email_purpose,  recipient_email,user_name=None ,data= None):
+    sender_email = 'abhigupta@fastmail.com'
+    print(data)
+    # Base HTML structure
+    base_html = """
+    <html>
+        <head>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: linear-gradient(to right, #e2e2e2, #7e9af6);
+                    color: #333333;
+                }}
+                .header {{
+                    background-color: #512da8;
+                    color: white;
+                    text-align: center;
+                    padding: 10px 0;
+                }}
+                .content {{
+                    padding: 20px;
+                }}
+                .footer {{
+                    background-color: #512da8;
+                    color: white;
+                    text-align: center;
+                    padding: 10px 0;
+                    font-size: 12px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Expense Monitoring System</h1>
+            </div>
+            <div class="content">
+                {content}
+            </div>
+            <div class="footer">
+                <p>ExpenseMonitoringSystem.com</p>
+                <p>Copyright © 2023 ExpenseMonitoringSystem™.<br>
+                All rights reserved.<br>
+                Boston, MA, 02135</p>
+            </div>
+        </body>
+    </html>
+    """
+
+    if email_purpose == 'registration':
+        subject = 'Welcome to Expense Monitoring System!'
+        content = f"<p>Hello {user_name},</p><p>Welcome to our Expense Management System! Your account has been created successfully.</p>"
+    
+    elif email_purpose == 'group_invitation':
+        subject = 'You have been invited to a group!'
+        content = f"""
+        <p>Hello {user_name},</p>
+        <p>You have been invited to join a group in Expense Monitoring System. 
+        Use the API key below to join the group: <strong>{data['group_name']}</strong></p>
+        <p><strong>API Key: {data['api_key']}</strong></p>
+        <p>Follow the instructions on our website to use this key and join group to manage expenses efficiently.</p>
+        """    
+    elif email_purpose == 'expense_alert':
+        subject = 'Expense Alert in Your Group'
+        content = f"<p>Hello {user_name},</p><p>There's a new update in your expense group. Please check your Expense Monitoring System account for more details.</p>"
+
+    else:
+        subject = 'Notification from Expense Monitoring System'
+        content = "<p>Hello, you have a new notification from Expense Monitoring System.</p>"
+
+    # Create the HTML content
+    html_content = base_html.format(content=content)
+
+    # Create and send the message
+    msg = Message(subject, sender=sender_email, recipients=[recipient_email])
+    msg.body = content.replace('<p>', '').replace('</p>', '\n').strip()  # Plain text version
+    msg.html = html_content
+    mail.send(msg)
+
+
+
 
 @app.route('/api/users/register', methods=['POST'])
 def register_user():
@@ -202,7 +297,9 @@ def register_user():
         "exp": datetime.utcnow() + timedelta(hours=24)  
     }
     token = jwt.encode(token_payload, SECRET_KEY, algorithm="HS256")
-    
+    # send email to welcome user
+    send_email('registration', user_name=new_user.first_name, recipient_email=new_user.email)
+
     return jsonify({"success": True, "message": "User registered successfully", "token": token, "data": new_user.to_json()}), 201
 
 
@@ -517,6 +614,47 @@ def join_group():
     return jsonify({"success": True, "message": "Joined group successfully"}), 200
 
 
+
+@app.route('/api/groups/<group_id>/invite', methods=['POST'])
+def invite_user_to_group(group_id):
+    # Authenticate the user
+    token = request.headers.get('Authorization')
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    # Check if the group exists
+    group = Group.objects(id=group_id).first()
+    if not group:
+        return jsonify({"success": False, "message": "Group not found"}), 404
+
+    # Get email from request
+    data = request.get_json()
+    recipient_email = data.get('email')
+    if not recipient_email:
+        return jsonify({"success": False, "message": "Email is required"}), 400
+
+    # Check if email is already in the group
+    if any(member.email == recipient_email for member in group.members):
+        return jsonify({"success": False, "message": "User already in group"}), 400
+
+    # Generate API key
+    api_key = generate_api_key(group_id, group.passphrase)
+
+    # Send an invitation email with API key
+    try:
+        data = {
+            'group_name': group.groupName,
+            'api_key': api_key
+        }
+        send_email(email_purpose='group_invitation',recipient_email=recipient_email, data=data)
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "message": "Failed to send invitation email", "error": str(e)}), 500
+
+    return jsonify({"success": True, "message": "Invitation sent successfully"}), 200
+
+
 @app.route('/api/groups', methods=['GET'])
 def get_user_groups():
     token = request.headers.get('Authorization')
@@ -592,6 +730,11 @@ def add_expense_to_group(group_id):
     if not group:
         return jsonify({"success": False, "message": "Group not found"}), 404
 
+    if split_method == 'payment':
+        if paid_by in paid_for_ids:
+            return jsonify({"success": False, "message": "Payer cannot be the same as payee in 'payment' split method"}), 400
+
+
     # Checking if the user is an admin or a member of the group
     is_member_or_admin = str(group.admin.id) == user_id or any(member.id == user_id for member in group.members)
 
@@ -611,6 +754,7 @@ def add_expense_to_group(group_id):
         ).save()
         return jsonify({"success": True, "message": "Expense added successfully", "data": new_expense.to_json()}), 201
     except Exception as e:
+        print(str(e))
         return jsonify({"success": False, "message": "Error adding expense", "error": str(e)}), 500
 
 @app.route('/api/groups/<group_id>/expenses', methods=['GET'])
@@ -728,6 +872,62 @@ def delete_expense_from_group(group_id, expense_id):
         return jsonify({"success": True, "message": "Expense deleted successfully"}), 200
     except Exception as e:
         return jsonify({"success": False, "message": "Error deleting expense", "error": str(e)}), 500
+
+@app.route('/api/groups/<group_id>/settlement_summary', methods=['GET'])
+def get_settlement_summary(group_id):
+    # Step 1: Authenticate the user
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    # Step 2: Check if the group exists
+    group = Group.objects(id=group_id).first()
+    if not group:
+        return jsonify({"success": False, "message": "Group not found"}), 404
+
+    # Step 3: Check if the user is a member or admin of the group
+    is_member_or_admin = str(group.admin.id) == user_id or any(member.id == user_id for member in group.members)
+    if not is_member_or_admin:
+        return jsonify({"success": False, "message": "User is not authorized to view this information"}), 403
+
+    # Step 4: Retrieve and filter the expenses with split method 'equal'
+    try:
+        expenses = GroupExpense.objects(group_id=group, splitMethod__in=['equal', 'payment', 'percentage'])
+        print("expense list: \n", expenses.to_json())
+        # Prepare the data for the settlement calculation
+        expenses_data = []
+        for expense in expenses:
+            payer_id = str(expense.paidBy.id)
+            shares = {str(user_id): expense.splitDetails['shares'][str(user_id)] for user_id in expense.splitDetails['shares']}
+            expenses_data.append({
+                "payer": payer_id,
+                "amount": expense.amount,
+                "shares": shares
+            })
+
+        # Calculate the settlements
+        print("####### ", expenses_data)
+        settlements = settle_expenses(expenses_data)
+
+        # Format the settlements for the response
+        settlements_json = [
+            {
+                'from': User.objects(id=debtor).first().username,
+                'to': User.objects(id=creditor).first().username,
+                'amount': amount
+            }
+            for debtor, creditor, amount in settlements
+        ]
+
+        return jsonify({"success": True, "settlements": settlements_json}), 200
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "message": "Error calculating settlements", "error": str(e)}), 500
 
 
 if __name__ == '__main__':

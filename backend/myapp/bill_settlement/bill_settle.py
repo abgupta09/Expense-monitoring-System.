@@ -29,7 +29,8 @@ def settle_expenses(expenses):
         # Determine the settlement amount
         settle_amount = min(-debt_amount, credit_amount)
         
-        settlements.append((debtor, creditor, settle_amount))
+        # Change here: swap the positions of debtor and creditor
+        settlements.append((creditor, debtor, settle_amount))
         
         # Update the debt and credit amounts
         if -debt_amount > credit_amount:
@@ -45,10 +46,5 @@ def settle_expenses(expenses):
     return settlements
 
 # Example:
-expenses = [
-    {"payer": "A", "amount": 100, "shares": {"A": 50, "B": 30, "C": 20}},
-    {"payer": "B", "amount": 50, "shares": {"A": 50, "B": 30, "C": 20}},
-    {"payer": "C", "amount": 120, "shares": {"A": 50, "B": 30, "C": 20}},
-]
-
+expenses = [{'payer': '65605508cce4c379f2491909', 'amount': 30.0, 'shares': {'65616d9909d69e11fc878852': 50, '65605508cce4c379f2491909': 50}}, {'payer': '65616d9909d69e11fc878852', 'amount': 60.0, 'shares': {'65616d9909d69e11fc878852': 50, '65605508cce4c379f2491909': 50}}, {'payer': '65605508cce4c379f2491909', 'amount': 15.0, 'shares': {'65616d9909d69e11fc878852': 100}}, {'payer': '65605508cce4c379f2491909', 'amount': 100.0, 'shares': {'65605508cce4c379f2491909': 60, '65616d9909d69e11fc878852': 40}}]
 print(settle_expenses(expenses))

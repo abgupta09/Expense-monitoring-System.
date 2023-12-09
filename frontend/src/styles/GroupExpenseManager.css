@@ -75,3 +75,56 @@
         flex-direction: row; /* Row layout for larger screens */
     }
 }
+
+.no-group-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 60vh; /* Adjust the height as needed */
+    text-align: center;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333; /* Color for the text */
+    font-size: 1.2em; /* Adjust font size as needed */
+    background-color: #f2f2f2; /* Background color */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-group-message p {
+    margin: 10px 0;
+}
+
+.group-invite-section {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-right: 20px; /* Adjust as needed */
+}
+
+.group-invite-section input {
+    margin-right: 10px; /* Space between input and button */
+}
+
+.group-invite-section input{
+    margin-top: 10px;
+    width: 250px;
+    height: 25px; /* Adjust the height as needed */
+    padding: 0 10px; /* Padding for better visual appearance */
+    vertical-align: middle; /* Aligns items vertically */
+}
+
+.group-invite-section input {
+    border: 1px solid #ccc; /* Add a border to the input field */
+    border-radius: 4px; /* Rounded corners for the input field */
+}
+
+.group-invite-section button {
+    margin-top: 10px;
+    color: white; /* Text color */
+    border: none; /* Remove default border */
+    border-radius: 4px; /* Rounded corners for the button */
+    cursor: pointer; /* Cursor changes to pointer when hovering over the button */
+}
+
