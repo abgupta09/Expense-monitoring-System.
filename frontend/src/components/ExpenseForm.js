@@ -27,7 +27,8 @@ function ExpenseForm({ addExpense, editingExpense, editExpense }) {
         "Pet Care",
         "Miscellaneous",
         "Technology",
-        "Taxes"
+        "Taxes",
+        "Others"
     ];
     
     const handleSubmit = (e) => {
