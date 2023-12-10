@@ -14,9 +14,21 @@ function Dashboard (){
 
     const root_endpoint = "http://127.0.0.1:5000/"
 
+    
     const fetchBudget = useCallback(async () => {
+        const token = localStorage.getItem('token'); 
+        if (!token) {
+            console.error("User not authenticated");
+            return;
+        }
         try {
-            const response = await fetch(root_endpoint + 'api/dashboard/get_budget', { method: 'GET' });
+            const response = await fetch(root_endpoint + 'api/dashboard/get_budget', {
+                method: 'GET',
+                headers: {
+                    'Authorization': token
+                }
+                
+            });
             const data = await response.json();
             if (response.ok) {
                 setBudget(data.budget);
@@ -29,10 +41,20 @@ function Dashboard (){
     }, []);
     
     const fetchAllExpenses = useCallback(async () => {
+        const token = localStorage.getItem('token'); 
+        if (!token) {
+            console.error("User not authenticated");
+            return;
+        }
         const url = new URL(root_endpoint + 'api/dashboard/get_all_expenses');
     
         try {
-            const response = await fetch(url, { method: 'GET' });
+            const response = await fetch(url, { 
+                method: 'GET',
+                headers: {
+                    'Authorization': token
+                } 
+            });
             const data = await response.json();
             if (response.ok) {
                 setAllExpensesData(data.expenses);
@@ -45,6 +67,11 @@ function Dashboard (){
     }, []);
     
     const fetchExpenses = useCallback(async (start = '', end = '') => {
+        const token = localStorage.getItem('token'); 
+        if (!token) {
+            console.error("User not authenticated");
+            return;
+        }
         const url = new URL(root_endpoint + 'api/dashboard/get_expenses');
         if (start && end) {
             url.searchParams.append('start', start);
@@ -52,7 +79,12 @@ function Dashboard (){
         }
 
         try {
-            const response = await fetch(url, { method: 'GET' });
+            const response = await fetch(url, { 
+                method: 'GET',
+                headers: {
+                    'Authorization': token
+                } 
+            });
             const data = await response.json();
             if (response.ok) {
                 setExpenseData(data.expenses); // Update the state with the fetched data
