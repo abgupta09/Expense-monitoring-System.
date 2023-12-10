@@ -2,7 +2,7 @@
     width: 200px;
     max-height: 600px;
     overflow-y: auto;
-    border-right: 1px solid #140da0;
+    border-right: 1px solid #5409d5;
     padding: 10px;
 }
 
@@ -17,7 +17,7 @@
     background-color: #8ea0f1; /* Example hover background color */
 }
 .group-item.active {
-    background-color: #960a0a;
+    background-color: #1e52ec;
     border-radius: 5px;
     color: aliceblue;
 }
