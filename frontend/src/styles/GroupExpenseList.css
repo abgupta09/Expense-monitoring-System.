@@ -22,3 +22,9 @@ table tbody {
     padding: 4px;
     margin: 0 2px;
 }
+
+.group-table-responsive {
+    border: 1px solid #ccc;
+    /* Remove maxHeight and overflow properties */
+}
+

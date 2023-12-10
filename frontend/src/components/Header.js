@@ -73,7 +73,7 @@ function Header({ productName }) {
     return (
         <div className="header">
             <div className="header-left">
-                <h2>Personal Expense Manager</h2>
+                <h2>{productName}</h2>
             </div>
             <div className="header-right">
                 <span className="username">{displayName}</span>

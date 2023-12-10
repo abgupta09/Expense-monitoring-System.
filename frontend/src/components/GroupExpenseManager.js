@@ -32,9 +32,7 @@ function GroupManagement() {
         setGroupName(event.target.value);
     };
 
-    const handleInviteAddressChange = (event) => {
-        setInviteAddress(event.target.value);
-    };
+
 
     const fetchCurrentUser = () => {
         const token = localStorage.getItem('token');
@@ -74,15 +72,6 @@ function GroupManagement() {
         } catch (error) {
             showAlert(`Error sending invite: ${error.message}`);
         }
-    };
-
-    const handleSendInvite = () => {
-        if (!inviteAddress) {
-            showAlert("Please enter an invite address.");
-            return;
-        }
-        sendInvite(inviteAddress);
-        setInviteAddress(''); 
     };
 
     const handleShowPaymentSummary = () => {
@@ -157,7 +146,8 @@ function GroupManagement() {
             const data = await response.json();
             if (response.ok) {
                 showAlert("Joined group successfully");
-                setApiKey(''); // Reset the API key field after successful join
+                setApiKey(''); 
+                fetchUserGroups();
             } else {
                 showAlert(data.message);
             }
@@ -193,7 +183,7 @@ function GroupManagement() {
 
             const data = await response.json();
             if (response.ok) {
-                setGroups(data.data); // Assuming data.data contains the array of groups
+                setGroups(data.data); 
                 setHasFetchedGroups(true)
             } else {
                 showAlert(data.message);
@@ -397,10 +387,9 @@ function GroupManagement() {
     };
     
     const hasGroups = groups.length > 0;
-
     return (
         <div className="app-container">
-            <Header/>
+            <Header productName="Group Expense Manager"/>
             <div className="group-util-container">
                 <div className="group-util-section group-form-section">
                     <div className="group-add-form">

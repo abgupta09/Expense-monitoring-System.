@@ -15,9 +15,6 @@ from bson import ObjectId
 from bill_settlement.bill_settle import settle_expenses
 from flask_mail import Mail, Message
 
-# from dotenv import load_dotenv
-
-# load_dotenv()
 
 
 
@@ -184,7 +181,6 @@ class GroupExpense(db.Document):
 
 def send_email(email_purpose,  recipient_email,user_name=None ,data= None):
     sender_email = 'abhigupta@fastmail.com'
-    print(data)
     # Base HTML structure
     base_html = """
     <html>
@@ -247,7 +243,7 @@ def send_email(email_purpose,  recipient_email,user_name=None ,data= None):
         """    
     elif email_purpose == 'expense_alert':
         subject = 'Expense Alert in Your Group'
-        content = f"<p>Hello {user_name},</p><p>There's a new update in your expense group. Please check your Expense Monitoring System account for more details.</p>"
+        content = f"<p>Hello,</p><p>There's a new update in your expense group.</p><p> {data} </p><p>Please check your Expense Monitoring System account for more details.</p>"
 
     else:
         subject = 'Notification from Expense Monitoring System'
@@ -673,7 +669,13 @@ def get_user_groups():
         return jsonify({"success": False, "message": "Invalid or expired token"}), 401
 
     try:
-        user_groups = Group.objects(admin=user_id)
+        admin_groups = Group.objects(admin=user_id)
+        # Fetch groups where the user is a member
+        member_groups = Group.objects(members=user_id)
+
+        # Combine the results from both queries
+        user_groups = list(admin_groups) + list(member_groups)
+
         return jsonify({"success": True, "data": [group.to_json() for group in user_groups]}), 200
     except Exception as e:
         return jsonify({"success": False, "message": "Error fetching groups", "error": str(e)}), 500
@@ -695,8 +697,7 @@ def get_group_members(group_id):
         return jsonify({"success": False, "message": "Group not found"}), 404
 
     # Optional: Check if the requesting user is authorized (e.g., a member of the group)
-    user_obj = User.objects(id=user_id).first()
-    if not group.is_admin(user_obj) and user_id not in group.members:
+    if user_id not in [str(group.admin.id)] + [str(member.id) for member in group.members]:
         return jsonify({"success": False, "message": "Unauthorized access"}), 403
 
     # Return the list of members
@@ -725,12 +726,8 @@ def add_expense_to_group(group_id):
     split_method = data.get('splitMethod')
     split_details = data.get('splitDetails')
 
-
     # Convert paid_for_ids to User objects
     paid_for_users = [User.objects(id=user_id).first() for user_id in paid_for_ids]
-
-
-    # Add validation for required fields here
 
     # Step 3: Check if group exists and user is a member or admin
     group = Group.objects(id=group_id).first()
@@ -743,9 +740,7 @@ def add_expense_to_group(group_id):
 
 
     # Checking if the user is an admin or a member of the group
-    is_member_or_admin = str(group.admin.id) == user_id or any(member.id == user_id for member in group.members)
-
-    if not is_member_or_admin:
+    if user_id not in [str(group.admin.id)] + [str(member.id) for member in group.members]:
         return jsonify({"success": False, "message": "User is not authorized to add expense to this group"}), 403
 
     # Step 4: Create and save expense
@@ -759,6 +754,25 @@ def add_expense_to_group(group_id):
             splitMethod=split_method,
             splitDetails=split_details
         ).save()
+
+        # Prepare data for email
+        expense_mail_data = {
+            "Alert type": "Add",
+            "paid_by": User.objects(id=paid_by).first().username,
+            "amount": amount,
+            "description": description,
+            "split_method": split_method,
+        }
+
+        # Get all group members' email addresses, excluding the user who added the expense
+        recipient_emails = []
+        for member in group.all_members:
+            recipient_emails.append(member.email)
+            
+        # Send email to each group member
+        for email in recipient_emails:
+            send_email(email_purpose='expense_alert', recipient_email=email, data=expense_mail_data)
+            
         return jsonify({"success": True, "message": "Expense added successfully", "data": new_expense.to_json()}), 201
     except Exception as e:
         print(str(e))
@@ -781,8 +795,7 @@ def get_group_expenses(group_id):
         return jsonify({"success": False, "message": "Group not found"}), 404
 
     # Step 3: Check if the user is a member or admin of the group
-    is_member_or_admin = str(group.admin.id) == user_id or any(member.id == user_id for member in group.members)
-    if not is_member_or_admin:
+    if user_id not in [str(group.admin.id)] + [str(member.id) for member in group.members]:
         return jsonify({"success": False, "message": "User is not authorized to view expenses of this group"}), 403
 
     # Step 4: Retrieve and return the expenses
@@ -808,8 +821,8 @@ def edit_group_expense(group_id, expense_id):
 
     # Check if group exists and if user is admin
     group = Group.objects(id=group_id).first()
-    if not group or str(group.admin.id) != user_id:
-        return jsonify({"success": False, "message": "Unauthorized Action or group not found"}), 403
+    if user_id not in [str(group.admin.id)] + [str(member.id) for member in group.members]:
+        return jsonify({"success": False, "message": "Unauthorized Action"}), 403
 
     # Retrieve the expense to be edited
     expense = GroupExpense.objects(id=expense_id, group_id=group).first()
@@ -824,32 +837,24 @@ def edit_group_expense(group_id, expense_id):
     expense.splitDetails = data.get('splitDetails', expense.splitDetails)
     expense.save()
 
+    # Prepare data for email
+    expense_mail_data = {
+        "Alert type": "Edit",
+        "paid_by": User.objects(id=expense.paidBy.id).first().username,
+        "amount": expense.amount,
+        "description": expense.description,
+        "split_method": expense.splitMethod,
+    }
+
+    # Get all group members' email addresses, excluding the user who added the expense
+    recipient_emails = []
+    for member in group.all_members:
+        recipient_emails.append(member.email)
+        
+    # Send email to each group member
+    for email in recipient_emails:
+        send_email(email_purpose='expense_alert', recipient_email=email, data=expense_mail_data)
     return jsonify({"success": True, "message": "Expense updated successfully", "data": expense.to_json()}), 200
-
-@app.route('/api/groups/<group_id>/delete_expense/<expense_id>', methods=['DELETE'])
-def delete_group_expense(group_id, expense_id):
-    # Authentication and user validation
-    token = request.headers.get('Authorization')
-    if not token:
-        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
-
-    user_id = get_user_id_from_token(token)
-    if not user_id:
-        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
-
-    # Check if group exists and if user is admin
-    group = Group.objects(id=group_id).first()
-    if not group or str(group.admin.id) != user_id:
-        return jsonify({"success": False, "message": "Unauthorized Action or group not found"}), 403
-
-    # Delete the expense
-    expense = GroupExpense.objects(id=expense_id, group_id=group).first()
-    if not expense:
-        return jsonify({"success": False, "message": "Expense not found"}), 404
-
-    expense.delete()
-
-    return jsonify({"success": True, "message": "Expense deleted successfully"}), 200
 
 @app.route('/api/groups/<group_id>/expenses/<expense_id>', methods=['DELETE'])
 def delete_expense_from_group(group_id, expense_id):
@@ -867,7 +872,7 @@ def delete_expense_from_group(group_id, expense_id):
     if not group:
         return jsonify({"success": False, "message": "Group not found"}), 404
 
-    if str(group.admin.id) != user_id:
+    if user_id not in [str(group.admin.id)] + [str(member.id) for member in group.members]:
         return jsonify({"success": False, "message": "User is not authorized to delete expenses in this group"}), 403
 
     # Step 3: Attempt to delete the expense
@@ -876,6 +881,25 @@ def delete_expense_from_group(group_id, expense_id):
         if not expense:
             return jsonify({"success": False, "message": "Expense not found"}), 404
         expense.delete()
+
+        # Prepare data for email
+        expense_mail_data = {
+            "Alert type": "Delete",
+            "paid_by": User.objects(id=expense.paidBy.id).first().username,
+            "amount": expense.amount,
+            "description": expense.description,
+            "split_method": expense.splitMethod,
+        }
+
+        # Get all group members' email addresses, excluding the user who added the expense
+        recipient_emails = []
+        for member in group.all_members:
+            recipient_emails.append(member.email)
+            
+        # Send email to each group member
+        for email in recipient_emails:
+            send_email(email_purpose='expense_alert', recipient_email=email, data=expense_mail_data)
+
         return jsonify({"success": True, "message": "Expense deleted successfully"}), 200
     except Exception as e:
         return jsonify({"success": False, "message": "Error deleting expense", "error": str(e)}), 500
@@ -897,14 +921,12 @@ def get_settlement_summary(group_id):
         return jsonify({"success": False, "message": "Group not found"}), 404
 
     # Step 3: Check if the user is a member or admin of the group
-    is_member_or_admin = str(group.admin.id) == user_id or any(member.id == user_id for member in group.members)
-    if not is_member_or_admin:
+    if user_id not in [str(group.admin.id)] + [str(member.id) for member in group.members]:
         return jsonify({"success": False, "message": "User is not authorized to view this information"}), 403
 
     # Step 4: Retrieve and filter the expenses with split method 'equal'
     try:
         expenses = GroupExpense.objects(group_id=group, splitMethod__in=['equal', 'payment', 'percentage'])
-        print("expense list: \n", expenses.to_json())
         # Prepare the data for the settlement calculation
         expenses_data = []
         for expense in expenses:
@@ -917,7 +939,6 @@ def get_settlement_summary(group_id):
             })
 
         # Calculate the settlements
-        print("####### ", expenses_data)
         settlements = settle_expenses(expenses_data)
 
         # Format the settlements for the response

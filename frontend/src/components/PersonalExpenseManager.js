@@ -235,7 +235,7 @@ function PersonalExpenseManager() {
 
   return (
     <div className="app-container">
-      <Header/>
+      <Header productName="Personal Expense Manager"/>
       <div className="section budget-section">
         <h3>Your Budget Overview</h3>
 
