@@ -1,5 +1,5 @@
 .DS_Store
 frontend/node_modules/
 backend/myapp/venv/
-backend/.DS_Store.DS_Store
+backend/.DS_Store
 backend/myapp/bill_settlement/__pycache__/bill_settle.cpython-311.pyc
