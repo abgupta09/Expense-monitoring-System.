@@ -8,6 +8,7 @@ import GroupExpenseForm from './GroupExpenseForm';
 import GroupExpenseList from './GroupExpenseList';
 import PaymentSummary from './PaymentSummary';
 import { jwtDecode } from "jwt-decode";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function GroupManagement() {
     const [groupName, setGroupName] = useState('');
@@ -22,7 +23,9 @@ function GroupManagement() {
     const [isLoading, setIsLoading] = useState(true);
     const [hasFetchedGroups, setHasFetchedGroups] = useState(false);
     const [currentUser, setCurrentUser] = useState({});
-
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteConfirmName, setDeleteConfirmName] = useState('');
+    const [selectedGroupName, setSelectedGroupName] = useState('');
 
     const showAlert = (message) => {
         alert(message);
@@ -110,13 +113,46 @@ function GroupManagement() {
         }
     };
 
+    const fetchGroupDetails = async (groupId) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("User not authenticated");
+            return;
+        }
+    
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/api/groups/${groupId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': token
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to fetch group details');
+            }
+    
+            const data = await response.json();
+            return data.data; // Assuming the group details are in the 'data' field of the response
+        } catch (error) {
+            alert(`Error fetching group details: ${error.message}`);
+        }
+    };
 
     const handleGroupSelect = (groupId) => {
         setSelectedGroup(groupId);
         fetchGroupExpenses(groupId);
         setInviteAddress('');
+        const fetchDetails = async () => {
+            try {
+                const groupDetails = await fetchGroupDetails(groupId);
+                setSelectedGroupName(groupDetails.group_name);
+            } catch (error) {
+                showAlert(`Error fetching group details: ${error.message}`);
+            }
+        };
+        fetchDetails();
     };
-
     const handleAddGroupClick = () => {
         if (!groupName) {
             showAlert("Please enter a group name.");
@@ -387,6 +423,39 @@ function GroupManagement() {
         }
     };
     
+    const deleteGroup = async () => {
+        if (deleteConfirmName !== selectedGroupName) {
+            showAlert("The group name does not match. Please enter the correct group name to confirm deletion.");
+            return;
+        }
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showAlert("User not authenticated");
+            return;
+        }
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/api/groups/${selectedGroup}/delete`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': token
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                showAlert("Group deleted successfully");
+                setIsDeleting(false);
+                setDeleteConfirmName('');
+                fetchUserGroups();
+                setSelectedGroup(null);
+            } else {
+                showAlert(data.message);
+            }
+        } catch (error) {
+            showAlert(`Error deleting group: ${error.message}`);
+        }
+    };
+
+
     const hasGroups = groups.length > 0;
     return (
         <div className="app-container">
@@ -420,16 +489,41 @@ function GroupManagement() {
                 </div>
             </div>
             {selectedGroup && (
-                <div className="group-invite-section">
-                    <input
-                        type="text"
-                        placeholder="Invite via Email"
-                        value={inviteAddress}
-                        onChange={(e) => setInviteAddress(e.target.value)}
-                    />
-                    <button onClick={sendInvite}>
-                        <SendIcon />
-                    </button>
+                <div className="group-invite-delete-section">
+                    <div className="group-invite-section">
+                        <input
+                            type="text"
+                            placeholder="Invite via Email"
+                            value={inviteAddress}
+                            onChange={(e) => setInviteAddress(e.target.value)}
+                        />
+                        <button onClick={sendInvite}>
+                            <SendIcon />
+                        </button>
+                    </div>
+                    <div className="group-delete-section">
+                        {!isDeleting ? (
+                            <button onClick={() => setIsDeleting(true)} className="delete-group-btn">
+                                <DeleteIcon />
+                                Delete Group
+                            </button>
+                        ) : (
+                            <div className="delete-confirmation">
+                                <input
+                                    type="text"
+                                    placeholder="Enter group name confirm"
+                                    value={deleteConfirmName}
+                                    onChange={(e) => setDeleteConfirmName(e.target.value)}
+                                />
+                                <button onClick={deleteGroup} className="confirm-delete-btn">
+                                    Confirm
+                                </button>
+                                <button onClick={() => setIsDeleting(false)} className="cancel-delete-btn">
+                                    Cancel
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
             {!isLoading && hasFetchedGroups && !hasGroups ? (

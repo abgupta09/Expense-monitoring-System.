@@ -263,43 +263,48 @@ def send_email(email_purpose,  recipient_email,user_name=None ,data= None):
 
 @app.route('/api/users/register', methods=['POST'])
 def register_user():
-    data = request.get_json()
-    username = data.get('username')
-    plain_password = data.get('password')
-    first_name = data.get('first_name')
-    last_name = data.get('last_name')
-    email = data.get('email')
-    
-    # Checking if the user already exists based on username or email
-    existing_user = User.objects(db.Q(username=username) | db.Q(email=email)).first()
-    if existing_user:
-        return jsonify({"success": False, "message": "User with that username or email already exists"}), 400
-    
-    # Hashing the password before saving
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(plain_password.encode('utf-8'), salt)
-    
-    # Create new user
-    new_user = User(
-        username=username,
-        password=hashed_password.decode('utf-8'),
-        first_name=first_name,
-        last_name=last_name,
-        email=email
-    ).save()
-    
-    # Generate JWT token
-    token_payload = {
-        "user_id": str(new_user.id),
-        "username": new_user.username,
-        # Token expires after 24 hours
-        "exp": datetime.utcnow() + timedelta(hours=24)  
-    }
-    token = jwt.encode(token_payload, SECRET_KEY, algorithm="HS256")
-    # send email to welcome user
-    send_email('registration', user_name=new_user.first_name, recipient_email=new_user.email)
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        plain_password = data.get('password')
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        email = data.get('email')
 
-    return jsonify({"success": True, "message": "User registered successfully", "token": token, "data": new_user.to_json()}), 201
+        # Checking if the user already exists based on username or email
+        existing_user = User.objects(db.Q(username=username) | db.Q(email=email)).first()
+        if existing_user:
+            return jsonify({"success": False, "message": "User with that username or email already exists"}), 400
+
+        # Hashing the password before saving
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(plain_password.encode('utf-8'), salt)
+
+        # Create new user
+        new_user = User(
+            username=username,
+            password=hashed_password.decode('utf-8'),
+            first_name=first_name,
+            last_name=last_name,
+            email=email
+        ).save()
+
+        # Generate JWT token
+        token_payload = {
+            "user_id": str(new_user.id),
+            "username": new_user.username,
+            # Token expires after 24 hours
+            "exp": datetime.utcnow() + timedelta(hours=24)  
+        }
+        token = jwt.encode(token_payload, SECRET_KEY, algorithm="HS256")
+        # send email to welcome user
+        send_email('registration', user_name=new_user.first_name, recipient_email=new_user.email)
+
+        return jsonify({"success": True, "message": "User registered successfully", "token": token, "data": new_user.to_json()}), 201
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({"success": False, "message": "An error occurred during registration"}), 500
 
 
 
@@ -574,6 +579,56 @@ def create_group():
     except Exception as e:
         return jsonify({"success": False, "message": "Error creating group", "error": str(e)}), 500
 
+@app.route('/api/groups/<group_id>', methods=['GET'])
+def get_group_details(group_id):
+    print("fetch group!!!!!!")
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    try:
+        group = Group.objects(id=group_id).first()
+        if not group:
+            return jsonify({"success": False, "message": "Group not found"}), 404
+
+        # Check if the user is either a member or an admin of the group
+        if user_id not in [str(group.admin.id)] + [str(member.id) for member in group.members]:
+            return jsonify({"success": False, "message": "User is not authorized to view to this group"}), 403
+
+        print("-------> ", group.to_json())
+        return jsonify({"success": True, "data": group.to_json()}), 200
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "message": "Error fetching group details", "error": str(e)}), 500
+
+
+
+@app.route('/api/groups/<group_id>/delete', methods=['DELETE'])
+def delete_group(group_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Authentication token is missing"}), 401
+
+    user_id = get_user_id_from_token(token)
+    if not user_id:
+        return jsonify({"success": False, "message": "Invalid or expired token"}), 401
+
+    group = Group.objects(id=group_id).first()
+    if not group:
+        return jsonify({"success": False, "message": "Group not found"}), 404
+
+    if str(group.admin.id) != user_id:
+        return jsonify({"success": False, "message": "Only the group admin can delete the group"}), 403
+
+    try:
+        group.delete()
+        return jsonify({"success": True, "message": "Group deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": "Error deleting group", "error": str(e)}), 500
 
 
 def generate_api_key(group_id, passphrase):
