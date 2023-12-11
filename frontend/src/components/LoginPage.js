@@ -33,7 +33,7 @@ function LoginPage() {
 
             const result = await response.json();
             if (response.ok) {
-                // Assuming the API returns a token on successful login
+                // API returns a token on successful login
                 localStorage.setItem('token', result.token);
                 // Navigate the users personal exp tab
                 navigate('/personal');
@@ -48,7 +48,6 @@ function LoginPage() {
 
     const handleSignUp = async (e) => {
         e.preventDefault();
-        // Implement sign-up logic here
     };
 
     return (
@@ -58,7 +57,6 @@ function LoginPage() {
                     <form onSubmit={handleSignUp}>
                         <h1>Create Account</h1>
                         <div className="social-icons">
-                            {/* Social Icons */}
                         </div>
                         <span>or use your email for registration</span>
                         <input type="text" placeholder="Name" />

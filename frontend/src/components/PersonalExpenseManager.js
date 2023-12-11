@@ -48,7 +48,7 @@ function PersonalExpenseManager() {
         } catch (error) {
             showAlert("Error fetching expenses: " + error.message);
         }
-    }, []); // Add dependencies here if there are any
+    }, []);
 
 
 
@@ -120,7 +120,8 @@ function PersonalExpenseManager() {
     };
 
     const addExpense = async (expense) => {
-      const token = localStorage.getItem('token'); // Retrieve the JWT token from local storage
+      // Retrieve the JWT token from local storage
+      const token = localStorage.getItem('token'); 
       if (!token) {
           // Handle the case where the token is not available
           console.error("User not authenticated");
@@ -150,10 +151,10 @@ function PersonalExpenseManager() {
   };
 
   const deleteExpense = async (id) => {
-    const token = localStorage.getItem('token'); // Retrieve the JWT token from local storage
+    // Retrieve the JWT token from local storage
+    const token = localStorage.getItem('token'); 
     if (!token) {
       // Handle the case where the token is not available
-      console.error("User not authenticated");
       showAlert("User not authenticated");
       return;
     }
@@ -222,7 +223,7 @@ function PersonalExpenseManager() {
             const currentMonthExpenses = updatedExpenses.filter(expense => isCurrentMonth(expense.date));
             setTotalSpent(currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0));
             showAlert("Expense updated successfully");
-            setEditingExpense(null); // If you were using a modal or form to edit, close it here
+            setEditingExpense(null);
             fetchExpenses();
         } else {
             showAlert(data.message);

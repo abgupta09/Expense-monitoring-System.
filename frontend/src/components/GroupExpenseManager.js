@@ -123,7 +123,8 @@ function GroupManagement() {
             return;
         }
         addGroup(groupName);
-        setGroupName(''); // Reset the input field after adding the group
+        // Reset the input field after adding the group
+        setGroupName(''); 
     };
 
     const joinGroup = async () => {

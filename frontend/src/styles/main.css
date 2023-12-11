@@ -35,7 +35,7 @@ button {
   background-color: #512da8;
   color: #fff;
   padding: 10px 15px;
-  border: 1px solid #ccc;  /* Added this line */
+  border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -72,7 +72,6 @@ th {
   text-align: left;
 }
 
-/* Base/mobile-first styles */
 body {
   font-size: 16px;
 }
@@ -128,21 +127,16 @@ tr {
   border: none;
   padding: 0;
   padding-right: 15px;
-  outline: none; /* This is to remove the default focus outline; use with caution */
+  outline: none; 
 }
 
 .actions-column {
-  width: 80px;  /* or whatever width you desire */
+  width: 80px; 
 }
 
 .actions-column button {
-  margin-right: 5px;  /* adjust as desired */
+  margin-right: 5px;  
 }
-
-/* .budget-display {
-  display: flex;
-  justify-content: space-between;
-} */
 
 
 .budget-update {
@@ -151,8 +145,8 @@ tr {
 }
 
 .label {
-  background-color: #512da8;  /* Example: red shade */
-  color: #fff;  /* White text color */
+  background-color: #512da8;  
+  color: #fff;  
   padding: 5px;
   border-radius: 5px;
 }
@@ -176,19 +170,17 @@ span {
   align-items: center;
 }
 
-/* Tablet styles */
 @media (min-width: 768px) {
-  /* styles for tablets or larger screens */
+  
 }
 
-/* Desktop styles */
 @media (min-width: 1024px) {
-  /* styles for desktops or larger screens */
+  
 }
 
 @media (max-width: 600px) {
   .budget-display {
-      flex-direction: column;  /* This will stack your items vertically */
+      flex-direction: column;  
   }
 }
 

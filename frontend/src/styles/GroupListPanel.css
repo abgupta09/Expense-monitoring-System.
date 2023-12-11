@@ -11,10 +11,9 @@
     cursor: pointer;
     
 }
-.group-item:hover {
-    /* Change color and/or background on hover */
-    color: #fff; /* Example hover text color */
-    background-color: #8ea0f1; /* Example hover background color */
+.group-item:hover {  
+    color: #fff; 
+    background-color: #8ea0f1;
 }
 .group-item.active {
     background-color: #1e52ec;
@@ -24,6 +23,6 @@
 
 .group-list-header {
     text-align: center;
-    color: #333; /* Choose a color that fits your design */
-    margin-bottom: 10px; /* Spacing between the header and the list */
+    color: #333;
+    margin-bottom: 10px;
 }

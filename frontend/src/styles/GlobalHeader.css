@@ -3,6 +3,6 @@
     color: white;
     padding: 10px 50px;
     display: flex;
-    justify-content: center; /* Horizontally center the content */
-    align-items: center; /* This will vertically center the content, if needed */
+    justify-content: center;
+    align-items: center; 
 }
