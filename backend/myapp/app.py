@@ -364,7 +364,9 @@ def get_user_profile():
     return jsonify({
         "success": True,
         "first_name": user.first_name,
-        "last_name": user.last_name
+        "last_name": user.last_name,
+        "username" :user.username,
+        "email": user.email
     }), 200
 
 
@@ -678,6 +680,7 @@ def get_user_groups():
 
         return jsonify({"success": True, "data": [group.to_json() for group in user_groups]}), 200
     except Exception as e:
+        print(str(e))
         return jsonify({"success": False, "message": "Error fetching groups", "error": str(e)}), 500
 
 @app.route('/api/groups/<group_id>/members', methods=['GET'])
