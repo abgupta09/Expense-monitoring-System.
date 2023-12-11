@@ -77,7 +77,11 @@ function LoginPage() {
 
     const handleSignUp = async (e) => {
         e.preventDefault();
-
+        console.log("###### ", registerData)
+        if (registerData.firstName === '' ||registerData.lastName === '' || registerData.email === '') {
+            alert("Enter user data to register.");
+            return; 
+        }
         if (registerData.registerPassword.length < 8) {
             alert("Password must be at least 8 characters long.");
             return;
