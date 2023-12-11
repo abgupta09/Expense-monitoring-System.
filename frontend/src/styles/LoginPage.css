@@ -202,11 +202,11 @@
 }
 
 .containerLogin.active .toggle-left {
-    transform: translateX(0%); /* When active, the left panel should stay in place */
+    transform: translateX(0%); 
 }
 
 .containerLogin.active .toggle-right {
-    transform: translateX(-100%); /* When active, the right panel should move out */
+    transform: translateX(-100%);
 }
 
 .toggle-left{

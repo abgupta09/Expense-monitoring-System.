@@ -5,74 +5,72 @@
 
 .group-util-container {
     display: flex;
-    justify-content: center; /* Horizontally center the children */
-    align-items: center; /* Vertically center the children */
-    flex-direction: column; /* Stack children vertically */
+    justify-content: center; 
+    align-items: center; 
+    flex-direction: column; 
     margin-top: 10px;
     background-color: #c9d6ff;
     background: linear-gradient(to right, #e2e2e2, #345fec);
     padding: 10px;
 }
 .group-add-form button, .join-group-form button {
-    height: 40px; /* Consistent height for inputs and buttons */
+    height: 40px; 
     margin: 5px;
 }
 
 .group-util-section {
-    width: 100%; /* Full width for each section */
+    width: 100%; 
     display: flex;
-    justify-content: center; /* Horizontally center contents of each section */
+    justify-content: center; 
     align-items: center;
 }
 
 .group-add-form, .join-group-form {
     display: flex;
-    justify-content: center; /* Center the form elements */
-    align-items: center; /* Align the form elements vertically */
+    justify-content: center; 
+    align-items: center; 
 }
 
 .group-add-form {
-    display: flex; /* Use Flexbox for layout */
-    align-items: center; /* Align items vertically at the center */
+    display: flex; 
+    align-items: center; 
 }
 
 .group-add-form input {
-    height: 25px; /* Set a consistent height for both input and button */
+    height: 25px; 
 }
 
 .group-add-form button {
-    height: 40px; /* Set a consistent height for both input and button */
+    height: 40px; 
 }
 
 .group-add-form button {
-    padding: 0 10px; /* Adjust padding for the button */
-    border: none; /* Optional: Removes border from the button */
-    color: white; /* Optional: Set text color for the button */
-    border-radius: 5px; /* Optional: Rounds the corners of the button */
-    cursor: pointer; /* Changes cursor to pointer on hover */
+    padding: 0 10px;
+    border: none; 
+    color: white; 
+    border-radius: 5px; 
+    cursor: pointer; 
 }
 
 .group-add-form input {
-    flex-grow: 1; /* Allows the input to grow and fill available space */
-    border: 1px solid #ccc; /* Adds a border to the input field */
-    border-radius: 5px; /* Rounds the corners of the input field */
-    padding: 0 10px; /* Adds padding inside the input field */
+    flex-grow: 1; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    padding: 0 10px; 
 }
 
 
-/* Styles for larger screens */
 @media (min-width: 768px) {
     .group-util-container {
-        flex-direction: row; /* Row layout for larger screens */
+        flex-direction: row; 
         justify-content: space-around;
         align-items: flex-start;
         flex-wrap: nowrap;
     }
 
     .group-util-section {
-        /* Adjust the width as necessary */
         width: calc(33.333% - 20px);
-        flex-direction: row; /* Row layout for larger screens */
+        flex-direction: row; 
     }
 }
 
@@ -81,13 +79,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 60vh; /* Adjust the height as needed */
+    height: 60vh; 
     text-align: center;
     margin: 0 auto;
     padding: 20px;
-    color: #333; /* Color for the text */
-    font-size: 1.2em; /* Adjust font size as needed */
-    background-color: #f2f2f2; /* Background color */
+    color: #333; 
+    font-size: 1.2em; 
+    background-color: #f2f2f2; 
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -100,31 +98,31 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-right: 20px; /* Adjust as needed */
+    margin-right: 20px; 
 }
 
 .group-invite-section input {
-    margin-right: 10px; /* Space between input and button */
+    margin-right: 10px;
 }
 
 .group-invite-section input{
     margin-top: 10px;
     width: 250px;
-    height: 25px; /* Adjust the height as needed */
-    padding: 0 10px; /* Padding for better visual appearance */
-    vertical-align: middle; /* Aligns items vertically */
+    height: 25px; 
+    padding: 0 10px; 
+    vertical-align: middle; 
 }
 
 .group-invite-section input {
-    border: 1px solid #ccc; /* Add a border to the input field */
-    border-radius: 4px; /* Rounded corners for the input field */
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
 }
 
 .group-invite-section button {
     margin-top: 10px;
-    color: white; /* Text color */
-    border: none; /* Remove default border */
-    border-radius: 4px; /* Rounded corners for the button */
-    cursor: pointer; /* Cursor changes to pointer when hovering over the button */
+    color: white; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
 }
 

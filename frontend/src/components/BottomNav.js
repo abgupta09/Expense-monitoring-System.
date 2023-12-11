@@ -14,11 +14,10 @@ const BottomNav = () => {
     const location = useLocation();
 
     useEffect(() => {
-        // Update the value based on the current path
+        
         if (location.pathname === '/personal') setValue(0);
         else if (location.pathname === '/groups') setValue(1);
         else if (location.pathname === '/dashboard') setValue(2);
-        // Add more cases as necessary
     }, [location.pathname]);
 
     const handleChange = (event, newValue) => {
@@ -27,7 +26,7 @@ const BottomNav = () => {
         if (newValue === 0) navigate('/personal');
         else if (newValue === 1) navigate('/groups');
         else if (newValue === 2) navigate('/dashboard');
-        // Add new routes
+    
     };
 
     return (

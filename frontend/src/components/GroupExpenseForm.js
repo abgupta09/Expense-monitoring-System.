@@ -120,7 +120,8 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
     };
 
     const handleCustomAmountChange = (memberId, amount) => {
-        const validAmount = Math.max(0, parseFloat(amount) || 0); // Ensures the value is not negative
+        // Ensures the value is not negative
+        const validAmount = Math.max(0, parseFloat(amount) || 0); 
         setSplitDetails(prevDetails => ({
             ...prevDetails,
             shares: { ...prevDetails.shares, [memberId]: validAmount }
@@ -212,9 +213,11 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
         };
         
         if (editingExpense) {
-            editGroupExpense(editingExpense.group_expense_id, currentExpense); // Call edit function if editing
+            // Call edit function if editing
+            editGroupExpense(editingExpense.group_expense_id, currentExpense); 
         } else {
-            addGroupExpense(currentExpense); // Call add function if not editing
+            // Call add function if not editing
+            addGroupExpense(currentExpense); 
         }
 
 
@@ -232,13 +235,14 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
         setPayer('');
 
         const resetShares = groupMembers.reduce((acc, member) => {
-            acc[member.user_id] = ''; // Reset share to empty for each member
+            // Reset share to empty for each member
+            acc[member.user_id] = ''; 
             return acc;
         }, {});
     
         setSplitDetails({ payer: '', amount: 0, shares: resetShares });
-
-        cancelEdit(); // Call the function passed from the parent to cancel editing
+        // Call the function passed from the parent to cancel editing
+        cancelEdit(); 
     };
     
     const handleCancelEdit = () => {
@@ -274,7 +278,7 @@ function GroupExpenseForm({ selectedGroup, groupMembers, addGroupExpense, editin
                     <select 
                         value={splitMethod} 
                         onChange={(e) => setSplitMethod(e.target.value)}
-                        id="splitMethodSelect"  // Adding an ID for the association with the label
+                        id="splitMethodSelect"
                     >
                         <option value="equal">Equal</option>
                         <option value="percentage">Percentage</option>

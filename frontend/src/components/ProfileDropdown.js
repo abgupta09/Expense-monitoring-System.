@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import userIcon from '../asset/profile_icon.jpg'; // Or any other default user icon
-import '../styles/ProfileDropdown.css'; // Path to your CSS file
+import userIcon from '../asset/profile_icon.jpg';
+import '../styles/ProfileDropdown.css'; 
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 function ProfileDropdown({ displayName, onLogout, email, username }) {
     const [open, setOpen] = useState(false);

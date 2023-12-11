@@ -1,6 +1,6 @@
 .payment-summary {
-    max-width: 400px; /* Adjust the width as necessary */
-    margin: 20px auto; /* Center align */
+    max-width: 400px; 
+    margin: 20px auto; 
     padding: 20px;
     border: 1px solid #474646;
     border-radius: 8px;
@@ -31,27 +31,27 @@
 
 .paymentSummary-button {
     display: block;
-    margin: 20px auto; /* Adds top margin and centers the button horizontally */
+    margin: 20px auto; 
     padding: 10px;
-    border: 1px solid rgb(4, 53, 178); /* Green border */
+    border: 1px solid rgb(4, 53, 178); 
     border-radius: 4px;
     background-color: transparent;
-    color: rgb(4, 53, 178);; /* Green text */
+    color: rgb(4, 53, 178);; 
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .paymentSummary-button:hover {
-    background-color: rgb(14, 63, 189); /* Green background on hover */
-    color: white; /* White text on hover */
+    background-color: rgb(14, 63, 189); 
+    color: white; 
 }
 
 .payment-summary ul {
-    list-style-type: disc; /* This adds the bullet points */
-    padding-left: 20px; /* Adjusts padding for alignment */
+    list-style-type: disc;
+    padding-left: 20px;
 }
 
 .payment-summary li {
-    margin-bottom: 10px; /* Optional: Adds space between list items */
+    margin-bottom: 10px;
 }

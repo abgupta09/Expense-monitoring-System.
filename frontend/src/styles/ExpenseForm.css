@@ -4,7 +4,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column; /* stack children vertically */
+    flex-direction: column;
 }
 
 .form-content {
@@ -36,6 +36,6 @@
         flex-direction: column;
     }
     .form-content select {
-        width: 90%; /* Adjust width as needed for mobile devices */
+        width: 90%; 
     }
 }
