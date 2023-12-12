@@ -15,7 +15,8 @@ The dashboard analystics will provide the details of your personal spending summ
 
 Both frontend and backend are deployed on `Heroku` Salesforce server.
 
-- Deplyment link: ****\*\*****\*\*\*\*****\*\*****
+- Deplyment link: https://serene-atoll-75134-64bea5025fac.herokuapp.com/
+  
 
 ### Team :
 
