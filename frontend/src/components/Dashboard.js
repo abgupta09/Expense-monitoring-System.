@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import ExpensePieChart from './PieChart'
+import ExpensePieChart from './PieChart';
 import ExpenseScatterChart from './ScatterChart'
 import ExpenseHistogram from './ExpenseHistogram';
 import NumberCard from './NumberCard';
 import '../styles/Dashboard.css';
 import Header from './Header';
-
 
 function Dashboard (){
     const [expenseData, setExpenseData] = useState([]);
@@ -24,7 +23,7 @@ function Dashboard (){
             return;
         }
         try {
-            const response = await fetch(root_endpoint + '/api/dashboard/get_budget', {
+            const response = await fetch(root_endpoint + 'api/dashboard/get_budget', {
                 method: 'GET',
                 headers: {
                     'Authorization': token
@@ -48,7 +47,7 @@ function Dashboard (){
             console.error("User not authenticated");
             return;
         }
-        const url = root_endpoint + '/api/dashboard/get_all_expenses';
+        const url = root_endpoint + 'api/dashboard/get_all_expenses';
     
         try {
             const response = await fetch(url, { 
@@ -74,7 +73,22 @@ function Dashboard (){
             console.error("User not authenticated");
             return;
         }
-        const url = root_endpoint + '/api/dashboard/get_expenses';
+
+        let url = root_endpoint + 'api/dashboard/get_expenses';
+        let queryParams = [];
+    
+        // Append start and end parameters if they exist
+        if (start) {
+            queryParams.push(`start=${encodeURIComponent(start)}`);
+        }
+        if (end) {
+            queryParams.push(`end=${encodeURIComponent(end)}`);
+        }
+    
+        // Join the query parameters with '&' and append to the URL
+        if (queryParams.length > 0) {
+            url += '?' + queryParams.join('&');
+        }
 
         try {
             const response = await fetch(url, { 
@@ -96,7 +110,7 @@ function Dashboard (){
 
     useEffect(() => {
         const end = new Date();
-        const start = new Date(end.getFullYear(), end.getMonth(), 1); // First day of the current month
+        const start = new Date(end.getFullYear(), end.getMonth(), 1);
     
         const formattedStart = start.toISOString().split('T')[0];
         const formattedEnd = end.toISOString().split('T')[0];
@@ -104,14 +118,14 @@ function Dashboard (){
         setStartDate(formattedStart);
         setEndDate(formattedEnd);
     
-        fetchExpenses(formattedStart, formattedEnd); // Fetch data for the latest month
+        fetchExpenses(formattedStart, formattedEnd); 
         fetchAllExpenses();
         fetchBudget();
     }, [fetchExpenses,fetchAllExpenses,fetchBudget]);
     
 
     const handleDateChange = () => {
-        fetchExpenses(startDate, endDate); // Fetch data for the selected date range
+        fetchExpenses(startDate, endDate);
     };
 
     return (
@@ -160,9 +174,7 @@ function Dashboard (){
                 </div>
                 
             </div>
-        </div>
-        
-        
+        </div>  
     );
 };
 
