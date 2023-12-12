@@ -1,21 +1,21 @@
 # Expense-monitoring-System
 
-The is a Expense Monitoring system is to provide users with a comprehensive and interactive platform to monitor, track, categorize, and analyze their expenses by setting a budget limit monthly. This also helps the user study and track their spending patterns and revisit their spending on a monthly or yearly basis. The Group allows users to craete a group for managing group expense.
+The Expense Monitoring System is designed as a comprehensive and interactive platform that assists users in monitoring, tracking, categorizing, and analyzing their expenses. It includes a feature for setting monthly budget limits, enabling users to effectively manage their finances. This system is particularly useful for users to study and track their spending patterns, offering insights into their monthly or yearly expenditure.
 
-The Group expensense manger supports various split method based on which the an expense can be added to group. These split method allloes user to settle thier expenses and get the payment summary details.
+A key feature of this system is the 'Group Expense Manager', which allows users to create groups for managing shared expenses. This function supports various split methods, facilitating users to add expenses to a group and settle them efficiently. It also provides a payment summary detailing how expenses are divided and settled among group members.
 
-The dashboard analystics will provide the details of your personal spending summary based on timeseries and spending category. This will help user inculcate a healthy spending habit which might lead financial security.
+The system's dashboard analytics offer a detailed overview of personal spending, presented through time series and categorized by spending types. This feature is instrumental in helping users develop healthy spending habits, ultimately contributing to their financial security and well-being.
 
 ### To run this project follow the guidelines mention below:
 
-- `Frontend` : The frontend is `react` based application. Go to the frontend folder and check the README file in it and follow the process.
+- `Frontend` : The frontend is `react` based application. Go to the frontend folder and check the README file in it and follow the instructions.
 - `Backend` : The backend is a `flask` restful webservices. Follow the instruction in the readme file there to make the server up and running.
 
 ### Deployment
 
 Both frontend and backend are deployed on `Heroku` Salesforce server.
 
-- Deplyment link: https://serene-atoll-75134-64bea5025fac.herokuapp.com/
+- Deployment link: https://serene-atoll-75134-64bea5025fac.herokuapp.com/
   
 
 ### Team :
