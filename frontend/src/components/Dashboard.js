@@ -14,7 +14,6 @@ function Dashboard (){
     const [allExpensesData, setAllExpensesData] = useState([]);
     const [budget, setBudget] = useState(0);
 
-    const root_endpoint = ""
 
     
     const fetchBudget = useCallback(async () => {
@@ -24,7 +23,7 @@ function Dashboard (){
             return;
         }
         try {
-            const response = await fetch(root_endpoint + '/api/dashboard/get_budget', {
+            const response = await fetch('/api/dashboard/get_budget', {
                 method: 'GET',
                 headers: {
                     'Authorization': token
@@ -48,10 +47,9 @@ function Dashboard (){
             console.error("User not authenticated");
             return;
         }
-        const url = new URL(root_endpoint + 'api/dashboard/get_all_expenses');
     
         try {
-            const response = await fetch(url, { 
+            const response = await fetch('/api/dashboard/get_all_expenses', { 
                 method: 'GET',
                 headers: {
                     'Authorization': token
@@ -74,14 +72,13 @@ function Dashboard (){
             console.error("User not authenticated");
             return;
         }
-        const url = new URL(root_endpoint + 'api/dashboard/get_expenses');
         if (start && end) {
             url.searchParams.append('start', start);
             url.searchParams.append('end', end);
         }
 
         try {
-            const response = await fetch(url, { 
+            const response = await fetch('/api/dashboard/get_expenses', { 
                 method: 'GET',
                 headers: {
                     'Authorization': token
