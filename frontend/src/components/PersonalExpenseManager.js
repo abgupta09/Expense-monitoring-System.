@@ -16,6 +16,12 @@ function PersonalExpenseManager() {
         alert(message);
     };
 
+    const isCurrentMonth = (date) => {
+        const expenseDate = new Date(date);
+        const now = new Date();
+        return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
+    };
+
     const fetchExpenses = useCallback(async () => {
         const token = localStorage.getItem('token'); 
         if (!token) {
@@ -34,14 +40,15 @@ function PersonalExpenseManager() {
             const data = await response.json();
             if (response.ok) {
                 setExpenses(data.expenses); // Assuming the API returns an array of expenses
-                setTotalSpent(data.expenses.reduce((sum, expense) => sum + expense.amount, 0));
+                const currentMonthExpenses = data.expenses.filter(expense => isCurrentMonth(expense.date));
+                setTotalSpent(currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0));
             } else {
                 console.error(data.message);
             }
         } catch (error) {
             showAlert("Error fetching expenses: " + error.message);
         }
-    }, []); // Add dependencies here if there are any
+    }, []);
 
 
 
@@ -113,7 +120,8 @@ function PersonalExpenseManager() {
     };
 
     const addExpense = async (expense) => {
-      const token = localStorage.getItem('token'); // Retrieve the JWT token from local storage
+      // Retrieve the JWT token from local storage
+      const token = localStorage.getItem('token'); 
       if (!token) {
           // Handle the case where the token is not available
           console.error("User not authenticated");
@@ -143,10 +151,10 @@ function PersonalExpenseManager() {
   };
 
   const deleteExpense = async (id) => {
-    const token = localStorage.getItem('token'); // Retrieve the JWT token from local storage
+    // Retrieve the JWT token from local storage
+    const token = localStorage.getItem('token'); 
     if (!token) {
       // Handle the case where the token is not available
-      console.error("User not authenticated");
       showAlert("User not authenticated");
       return;
     }
@@ -165,7 +173,8 @@ function PersonalExpenseManager() {
         const updatedExpenses = expenses.filter(expense => expense.id !== id);
         setExpenses(updatedExpenses);
         // Recalculate the total spent after deletion
-        setTotalSpent(updatedExpenses.reduce((sum, expense) => sum + expense.amount, 0));
+        const currentMonthExpenses = updatedExpenses.filter(expense => isCurrentMonth(expense.date));
+        setTotalSpent(currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0));
         showAlert("Expense deleted successfully");
         fetchExpenses();
       } else {
@@ -211,9 +220,10 @@ function PersonalExpenseManager() {
             });
             
             setExpenses(updatedExpenses);
-            setTotalSpent(updatedExpenses.reduce((sum, expense) => sum + expense.amount, 0));
+            const currentMonthExpenses = updatedExpenses.filter(expense => isCurrentMonth(expense.date));
+            setTotalSpent(currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0));
             showAlert("Expense updated successfully");
-            setEditingExpense(null); // If you were using a modal or form to edit, close it here
+            setEditingExpense(null);
             fetchExpenses();
         } else {
             showAlert(data.message);
@@ -226,27 +236,26 @@ function PersonalExpenseManager() {
 
   return (
     <div className="app-container">
-      <Header/>
+      <Header productName="Personal Expense Manager"/>
       <div className="section budget-section">
         <h3>Your Budget Overview</h3>
 
         <div className="budget-display">
-          <h3 className="label">Spent: <span>${totalSpent.toFixed(2)}</span></h3>
-          <h3 className="label">Remaining: <span>${(budget - totalSpent).toFixed(2)}</span></h3>
-          <h3 className="label">Budget: <span>${budget.toFixed(2)}</span></h3>
-
-              <div className="budget-update">
-                  <input 
-                      type="number"
-                      value={tempBudget}
-                      onChange={e => setTempBudget(e.target.value)}
-                      placeholder="Set Budget"
-                      style={{height: '26px'}}
-                  />
-                  <button className='edit-budget-btn' onClick={updateBudget}>
-                  <EditIcon className='edit-budget-icon' fontSize='small'/>
-                  </button>
-              </div>
+            <h3 className="label">Spent: <span>${totalSpent.toFixed(2)}</span></h3>
+            <h3 className="label">Remaining: <span>${(budget - totalSpent).toFixed(2)}</span></h3>
+            <h3 className="label">Budget: <span>${budget.toFixed(2)}</span></h3>
+            <div className="budget-update">
+                <input 
+                    type="number"
+                    value={tempBudget}
+                    onChange={e => setTempBudget(e.target.value)}
+                    placeholder="Set Budget"
+                    style={{height: '26px'}}
+                />
+                <button className='edit-budget-btn' onClick={updateBudget}>
+                <EditIcon className='edit-budget-icon' fontSize='small'/>
+                </button>
+            </div>
           </div>              
       </div>
 

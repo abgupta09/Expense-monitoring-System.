@@ -7,7 +7,30 @@ function ExpenseForm({ addExpense, editingExpense, editExpense }) {
     const [name, setName] = useState(editingExpense ? editingExpense.name : '');
     const [amount, setCost] = useState(editingExpense ? editingExpense.amount : '');
     const [date, setDate] = useState(editingExpense ? editingExpense.date : '');
+    const [category, setCategory] = useState(editingExpense ? editingExpense.category : '');
 
+    const expenseCategories = [
+        "Housing",
+        "Utilities",
+        "Food and Groceries",
+        "Transportation",
+        "Healthcare",
+        "Insurance",
+        "Debt Payments",
+        "Savings and Investments",
+        "Education",
+        "Childcare and Children's Education",
+        "Personal Care",
+        "Entertainment and Recreation",
+        "Gifts and Donations",
+        "Household Goods and Supplies",
+        "Pet Care",
+        "Miscellaneous",
+        "Technology",
+        "Taxes",
+        "Others"
+    ];
+    
     const handleSubmit = (e) => {
         e.preventDefault();
     
@@ -28,7 +51,7 @@ function ExpenseForm({ addExpense, editingExpense, editExpense }) {
             formattedDate = currentDate.toISOString();
         }
         
-        const currentExpense = { name, amount: parseFloat(amount), date: formattedDate };
+        const currentExpense = { name, amount: parseFloat(amount), date: formattedDate, category };
     
         if (editingExpense) {
             editExpense(editingExpense.expense_id, currentExpense);
@@ -47,6 +70,7 @@ function ExpenseForm({ addExpense, editingExpense, editExpense }) {
             setName(editingExpense.name);
             setCost(editingExpense.amount);
             setDate(editingExpense.date);
+            setCategory(editingExpense.category);
         }
     }, [editingExpense]);
 
@@ -67,6 +91,12 @@ function ExpenseForm({ addExpense, editingExpense, editExpense }) {
                     placeholder="Amount"
                     required
                 />
+                <select value={category} onChange={e => setCategory(e.target.value)} required>
+                    <option value="">Select Category</option>
+                    {expenseCategories.map((cat, index) => (
+                        <option key={index} value={cat}>{cat}</option>
+                    ))}
+                </select>
                 <input 
                     type="date" 
                     value={date} 

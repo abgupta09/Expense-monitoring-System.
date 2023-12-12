@@ -1,10 +1,9 @@
-/* Existing styles for larger screens */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background-color: #007BFF;
+    background-color: #5c32bc;
     color: #fff;
     position: relative;
 }
@@ -47,15 +46,13 @@
 }
   
 .dropdown-content {
-    display: none; /* Hidden by default */
+    display: none;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
 }
   
-  /* .dropdown:hover .dropdown-content {
-    display: block;
-  } */
+
   
   .show {
     display: block;

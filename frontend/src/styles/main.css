@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
 body {
-  font-family: 'Open Sans', sans-serif;
-  background-color: #f4f4f4;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #c9d6ff;
+  background: linear-gradient(to right, #e2e2e2, #c9d6ff);
   margin: 0;
   padding: 0;
 }
@@ -29,24 +32,25 @@ form {
 }
 
 button {
-  background-color: #007BFF;
+  background-color: #512da8;
   color: #fff;
   padding: 10px 15px;
-  border: 1px solid #ccc;  /* Added this line */
+  border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #512da8;
 }
 
-input[type="text"], input[type="number"], input[type="date"] {
+input[type="text"], input[type="number"], input[type="date"], input[type="email"] {
   padding: 10px;
   margin-right: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
+
 
 table {
   width: 100%;
@@ -63,12 +67,11 @@ th, td {
 }
 
 th {
-  background-color: #007BFF; 
+  background-color: #512da8; 
   color: #fff;                
   text-align: left;
 }
 
-/* Base/mobile-first styles */
 body {
   font-size: 16px;
 }
@@ -124,60 +127,60 @@ tr {
   border: none;
   padding: 0;
   padding-right: 15px;
-  outline: none; /* This is to remove the default focus outline; use with caution */
+  outline: none; 
 }
 
 .actions-column {
-  width: 80px;  /* or whatever width you desire */
+  width: 80px; 
 }
 
 .actions-column button {
-  margin-right: 5px;  /* adjust as desired */
-}
-
-.budget-display {
-  display: flex;
-  justify-content: space-between;
+  margin-right: 5px;  
 }
 
 
 .budget-update {
   text-align: right;
+  width: 20%;
 }
 
 .label {
-  background-color: #065fe6;  /* Example: red shade */
-  color: #fff;  /* White text color */
+  background-color: #512da8;  
+  color: #fff;  
   padding: 5px;
   border-radius: 5px;
 }
 
 span {
-  color: #efefef;  /* Example: orange text for value */
+  color: #efefef;  
   font-style: italic;
   font-weight: bold;
 }
 
 .budget-display {
-  display: flex;  /* This will align your items horizontally */
+  display: flex;  
   justify-content: space-between;
   align-items: center;
   background-color: #fff;
 }
 
-/* Tablet styles */
-@media (min-width: 768px) {
-  /* styles for tablets or larger screens */
+.budget-update {
+  display: flex;  
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Desktop styles */
+@media (min-width: 768px) {
+  
+}
+
 @media (min-width: 1024px) {
-  /* styles for desktops or larger screens */
+  
 }
 
 @media (max-width: 600px) {
   .budget-display {
-      flex-direction: column;  /* This will stack your items vertically */
+      flex-direction: column;  
   }
 }
 
@@ -186,7 +189,7 @@ span {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #007BFF;
+  background-color: #512da8;
   color: #fff;
 }
 

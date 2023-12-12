@@ -72,16 +72,15 @@ function RegisterPage() {
     
             if (response.ok) {
                 localStorage.removeItem('token');
-                // Handle successful registration, e.g., redirect to login page or show a success message
+                // Handle successful registration
                 alert('Registered successfully!');
                 await loginUser({ username: formData.username, password: formData.password }, navigate, setErrorMessage);
             } else {
-                // Handle errors from the server, e.g., display an error message
+                // Handle errors from the server.
                 alert(data.message || 'Registration failed!');
             }
         } catch (error) {
             // Handle network errors or other issues with the API call
-            console.error('Error during registration:', error);
             alert('There was an error during registration. Please try again later.');
         }
     };

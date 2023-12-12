@@ -1,36 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Header.css';
-import profileIcon from '../asset/profile_icon.jpg';
+import ProfileDropdown from './ProfileDropdown';
 
 function Header({ productName }) {
     const [displayName, setDisplayName] = useState('Guest');
-    const [showDropdown, setShowDropdown] = useState(false);
+    const [displayUsername, setDisplayUserName] = useState('Guest');
+    const [displayEmail, setDisplayEmail] = useState('Guest');
+
     const navigate = useNavigate();
 
-    // Toggle dropdown visibility
-    const toggleDropdown = (event) => {
-        // Prevent the click on the dropdown from closing it immediately
-        event.stopPropagation();
-        setShowDropdown(!showDropdown);
-    };
-
-    // Close dropdown when clicking outside of it
-    useEffect(() => {
-        const closeDropdown = (event) => {
-            if (!event.target.closest('.dropdown')) {
-                setShowDropdown(false);
-            }
-        };
-
-        // Attach the event listener
-        document.addEventListener('click', closeDropdown);
-
-        // Cleanup the event listener
-        return () => {
-            document.removeEventListener('click', closeDropdown);
-        };
-    }, []);
 
     // Logout functionality
     const handleLogout = () => {
@@ -59,9 +38,12 @@ function Header({ productName }) {
                 return response.json();
             })
             .then(data => {
+                console.log(JSON.stringify(data));
                 if (data.success) {
                     // Set the display name to the user's first and last name
                     setDisplayName(`${data.first_name} ${data.last_name}`);
+                    setDisplayUserName(`${data.username}`);
+                    setDisplayEmail(`${data.email}`);
                 }
             })
             .catch(error => {
@@ -73,17 +55,11 @@ function Header({ productName }) {
     return (
         <div className="header">
             <div className="header-left">
-                <h2>Personal Expense Manager</h2>
+                <h2>{productName}</h2>
             </div>
             <div className="header-right">
                 <span className="username">{displayName}</span>
-                <div className="dropdown">
-                    <img src={profileIcon} alt="User Icon" className="profile-icon" onClick={toggleDropdown}/>
-                    <div className={`dropdown-content ${showDropdown ? 'show' : ''}`}>
-                        <p>{displayName}</p>
-                        <p onClick={handleLogout}>Logout</p>
-                    </div>
-                </div>
+                <ProfileDropdown displayName={displayName} onLogout={handleLogout} email={displayEmail} username={displayUsername} />
             </div>
         </div>
     );
