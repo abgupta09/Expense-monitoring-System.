@@ -118,10 +118,9 @@ function Dashboard (){
 
     return (
         <div className="app-container">
-            <Header/>
+            <Header productName={'Dashboard'}/>
             <div className="dashboard-container">
-                
-                <div className="chart-container">
+                <div className="top-row">
                     <div className="chart-item">
                         <NumberCard 
                             title="Total Money Saved" 
@@ -130,32 +129,33 @@ function Dashboard (){
                         />
 
                     </div>
-                    <div className="chart-item">
+                    <div className="chart-item histogram">
                         <ExpenseHistogram expenseData={allExpensesData} budget={budget} />
                     </div>
+                </div>    
+                <div className="date-range-picker">
+                    <label>From: </label>
+                    <input 
+                        type="date" 
+                        value={startDate} 
+                        onChange={(e) => setStartDate(e.target.value)} 
+                    />
+                    <label>To: </label>
+                    <input 
+                        type="date" 
+                        value={endDate} 
+                        onChange={(e) => setEndDate(e.target.value)} 
+                    />
+                    <button onClick={handleDateChange}>Select Range</button>
+                </div>
+
+                <div className="bottom-row">
                     <div className="chart-item">
-                        <div className="date-range-picker">
-                            <label>From: </label>
-                            <input 
-                                type="date" 
-                                value={startDate} 
-                                onChange={(e) => setStartDate(e.target.value)} 
-                            />
-                            <label>To: </label>
-                            <input 
-                                type="date" 
-                                value={endDate} 
-                                onChange={(e) => setEndDate(e.target.value)} 
-                            />
-                            <button onClick={handleDateChange}>Select Range</button>
-                        </div>
                         <ExpensePieChart expenseData={expenseData} startDate={startDate} endDate={endDate}/>
                     </div>
-                    <div className="chart-item">
+                    <div className="chart-item scatter">
                         <ExpenseScatterChart expenseData={expenseData} startDate={startDate} endDate={endDate}/>
-                    </div>
-                    
-                    
+                    </div>    
                 </div>
                 
             </div>

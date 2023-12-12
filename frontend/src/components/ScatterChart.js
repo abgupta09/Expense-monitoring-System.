@@ -41,6 +41,7 @@ function ExpenseLineChart({ expenseData, startDate, endDate }) {
     };
 
     const options = {
+        maintainAspectRatio: false,
         scales: {
             x: {
                 type: 'time',
@@ -72,9 +73,7 @@ function ExpenseLineChart({ expenseData, startDate, endDate }) {
     };
 
     return (
-        <div>
             <Scatter data={data} options={options}/>
-        </div>
     );
 }
 

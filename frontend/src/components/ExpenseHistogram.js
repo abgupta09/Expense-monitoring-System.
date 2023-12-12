@@ -48,6 +48,7 @@ function ExpenseHistogram({ expenseData, budget }) {
     };
 
     const options = {
+        maintainAspectRatio: false,
         plugins: {
             title: {
                 display: true,
@@ -76,9 +77,7 @@ function ExpenseHistogram({ expenseData, budget }) {
     };
 
     return (
-        <div>
-            <Bar data={data} options={options}/>
-        </div>
+        <Bar data={data} options={options}/>
     );
 }
 

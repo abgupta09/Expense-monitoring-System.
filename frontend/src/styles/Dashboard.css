@@ -1,29 +1,46 @@
-.chart-container {
+.dashboard-container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 20px; /* Adjust the gap as needed */
+    flex-direction: column;
+    align-items: center;
 }
 
-/* flex: 0 0 calc(50% - 20px); Adjust the width minus the gap for 2 columns */
-.chart-item {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
+.top-row, .bottom-row {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
 }
+
+.chart-item {
+    flex: 1;
+    max-width: 45%; /* Adjust based on your preference */
+    height: 35vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 10px;
+    background: rgb(238, 249, 254);
+    border-radius: 10px;
+    border: solid 3px #512da8;
+    padding:10px;
+}
+
+/* .date-range-picker {
+    width: 80%; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 10px;
+} */
 
 /* Media query for mobile phones */
 @media (max-width: 600px) {
+    .top-row, .bottom-row {
+        flex-direction: column;
+    }
+
     .chart-item {
-        flex: 0 0 100%; /* Full width for small screens */
+        max-width: 100%;
     }
 }
-
-.date-range-picker {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Center horizontally */
-    gap: 10px;
-}
-

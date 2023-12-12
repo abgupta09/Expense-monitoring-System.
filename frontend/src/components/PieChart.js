@@ -53,7 +53,7 @@ const ExpensePieChart = ({ expenseData, startDate, endDate}) => {
     };
 
     const options = {
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
             title: {
                 display: true,
