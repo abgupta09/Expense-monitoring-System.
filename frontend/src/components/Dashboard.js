@@ -14,7 +14,7 @@ function Dashboard (){
     const [allExpensesData, setAllExpensesData] = useState([]);
     const [budget, setBudget] = useState(0);
 
-    const root_endpoint = "http://127.0.0.1:5000/"
+    const root_endpoint = ""
 
     
     const fetchBudget = useCallback(async () => {
@@ -24,7 +24,7 @@ function Dashboard (){
             return;
         }
         try {
-            const response = await fetch(root_endpoint + 'api/dashboard/get_budget', {
+            const response = await fetch(root_endpoint + '/api/dashboard/get_budget', {
                 method: 'GET',
                 headers: {
                     'Authorization': token

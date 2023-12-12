@@ -56,7 +56,7 @@ function GroupManagement() {
             return;
         }
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/groups/${selectedGroup}/invite`, {
+            const response = await fetch(`/api/groups/${selectedGroup}/invite`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ function GroupManagement() {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/groups/create', {
+            const response = await fetch('/api/groups/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ function GroupManagement() {
         }
     
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/groups/${groupId}`, {
+            const response = await fetch(`/api/groups/${groupId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': token
@@ -171,7 +171,7 @@ function GroupManagement() {
         }
     
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/groups/join', {
+            const response = await fetch('/api/groups/join', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -211,7 +211,7 @@ function GroupManagement() {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/groups', {
+            const response = await fetch('/api/groups', {
                 method: 'GET',
                 headers: {
                     'Authorization': token
@@ -241,7 +241,7 @@ function GroupManagement() {
         }
 
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/groups/${groupId}/members`, {
+            const response = await fetch(`/api/groups/${groupId}/members`, {
             method: 'GET',
             headers: {
                 'Authorization': token
@@ -279,7 +279,7 @@ function GroupManagement() {
         }
     
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/groups/${selectedGroup}/add_expense`, {
+            const response = await fetch(`/api/groups/${selectedGroup}/add_expense`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -311,7 +311,7 @@ function GroupManagement() {
         }
     
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/groups/${selectedGroup}/edit_expense/${expenseId}`, {
+            const response = await fetch(`/api/groups/${selectedGroup}/edit_expense/${expenseId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -351,7 +351,7 @@ function GroupManagement() {
         }
     
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/groups/${selectedGroup}/expenses/${expenseId}`, {
+            const response = await fetch(`/api/groups/${selectedGroup}/expenses/${expenseId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -378,7 +378,7 @@ function GroupManagement() {
         }
     
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/groups/${groupId}/expenses`, {
+            const response = await fetch(`/api/groups/${groupId}/expenses`, {
                 method: 'GET',
                 headers: {
                     'Authorization': token
@@ -404,7 +404,7 @@ function GroupManagement() {
         }
     
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/groups/${selectedGroup}/settlement_summary`, {
+            const response = await fetch(`/api/groups/${selectedGroup}/settlement_summary`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -434,7 +434,7 @@ function GroupManagement() {
             return;
         }
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/groups/${selectedGroup}/delete`, {
+            const response = await fetch(`/api/groups/${selectedGroup}/delete`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': token

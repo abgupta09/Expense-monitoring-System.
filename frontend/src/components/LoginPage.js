@@ -55,7 +55,7 @@ function LoginPage() {
 
     async function login(username, password,  navigate, setErrorMessage) {
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/users/login', {
+            const response = await fetch('/api/users/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ function LoginPage() {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/api/users/register', {
+            const response = await fetch('/api/users/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
