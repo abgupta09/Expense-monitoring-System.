@@ -5,6 +5,8 @@ import ExpenseHistogram from './ExpenseHistogram';
 import NumberCard from './NumberCard';
 import '../styles/Dashboard.css';
 import Header from './Header';
+
+
 function Dashboard (){
     const [expenseData, setExpenseData] = useState([]);
     const [startDate, setStartDate] = useState('');
@@ -118,7 +120,8 @@ function Dashboard (){
 
     return (
         <div className="app-container">
-            <Header/>
+            <Header productName="Dashboard"/>
+            
             <div className="dashboard-container">
                 
                 <div className="chart-container">
@@ -149,7 +152,9 @@ function Dashboard (){
                             />
                             <button onClick={handleDateChange}>Select Range</button>
                         </div>
-                        <ExpensePieChart expenseData={expenseData} startDate={startDate} endDate={endDate}/>
+                        <div className="chart-item pie-chart-item">
+                            <ExpensePieChart expenseData={expenseData} startDate={startDate} endDate={endDate} />
+                        </div>
                     </div>
                     <div className="chart-item">
                         <ExpenseScatterChart expenseData={expenseData} startDate={startDate} endDate={endDate}/>
