@@ -11,6 +11,17 @@ The system's dashboard analytics offer a detailed overview of personal spending,
 - `Frontend` : The frontend is `react` based application. Go to the frontend folder and check the README file in it and follow the instructions.
 - `Backend` : The backend is a `flask` restful webservices. Follow the instruction in the readme file there to make the server up and running.
 
+### Documentation
+
+The `artifact` folder contains all the software specific documents:
+
+1. `design` : Design related documents.
+2. `project_configuration` : Project configuration documents.
+3. `project_documents` : This folder includes every documents compiled together in a single folder.
+4. `requirements` : The project requirements document is present here.
+5. `status` : Project status documents are for each iteration.
+6. `team_info` : documents related to team information.
+
 ### Deployment
 
 #### Processs:
@@ -50,7 +61,6 @@ def serve(path):
 Both frontend and backend are deployed on `Heroku` Salesforce server.
 
 - Deployment link: https://serene-atoll-75134-64bea5025fac.herokuapp.com/
-  
 
 ### Team :
 
