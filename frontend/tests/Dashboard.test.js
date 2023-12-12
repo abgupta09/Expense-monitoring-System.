@@ -1,7 +1,6 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import Dashboard from './Dashboard';
 
-// Mock localStorage
 const localStorageMock = {
   getItem: jest.fn(),
 };
@@ -10,7 +9,6 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
 
-// Mock fetch
 beforeEach(() => {
   global.fetch = jest.fn(() =>
     Promise.resolve({
@@ -23,8 +21,8 @@ beforeEach(() => {
 test('renders Dashboard component', () => {
     render(<Dashboard />);
     expect(screen.getByText('Total Money Saved')).toBeInTheDocument();
-    expect(screen.getByText('Expense Overview')).toBeInTheDocument(); // For ExpensePieChart
-    expect(screen.getByText('Spending Pattern')).toBeInTheDocument(); // For ExpenseScatterChart
+    expect(screen.getByText('Expense Overview')).toBeInTheDocument(); 
+    expect(screen.getByText('Spending Pattern')).toBeInTheDocument(); 
   });
   
 
@@ -46,8 +44,7 @@ test('date range change triggers data fetch', async () => {
     fireEvent.change(startDateInput, { target: { value: '2023-01-01' } });
     fireEvent.change(endDateInput, { target: { value: '2023-01-31' } });
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledTimes(5); // 3 initial calls + 2 for date change
-      // Check if the last fetch call was made with the new date parameters
+      expect(global.fetch).toHaveBeenCalledTimes(5); 
       expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('api/dashboard/get_expenses?start=2023-01-01&end=2023-01-31'), expect.any(Object));
     });
   });
@@ -74,9 +71,9 @@ test('displays fetched budget and expenses data', async () => {
   
     await waitFor(() => {
       expect(screen.getByText('Total Money Saved')).toBeInTheDocument();
-      expect(screen.getByText('500')).toBeInTheDocument(); // Displaying budget
-      expect(screen.getByText('Total Expenses')).toBeInTheDocument(); // Hypothetical label for total expenses
-      expect(screen.getByText('150')).toBeInTheDocument(); // Total expenses amount
+      expect(screen.getByText('500')).toBeInTheDocument(); 
+      expect(screen.getByText('Total Expenses')).toBeInTheDocument(); 
+      expect(screen.getByText('150')).toBeInTheDocument(); 
     });
   });
   
@@ -115,8 +112,7 @@ test('displays no data message when there are no expenses', () => {
 
 
 test('handles unauthorized access', () => {
-    localStorageMock.getItem.mockImplementationOnce(() => null); // Simulate no token in localStorage
-
+    localStorageMock.getItem.mockImplementationOnce(() => null); 
     render(<Dashboard />);
     expect(screen.getByText('User not authenticated')).toBeInTheDocument();
 });
@@ -158,10 +154,9 @@ test('passes correct data to ExpensePieChart', async () => {
 
     render(<Dashboard />);
     await waitFor(() => {
-    // Assuming ExpensePieChart displays the data in some form, adjust the test to check for that
-    expect(screen.getByText('Food')).toBeInTheDocument();
-    expect(screen.getByText('Transport')).toBeInTheDocument();
-    // Or if the data is visualized, ensure the chart or component with the data is present
+      expect(screen.getByText('Food')).toBeInTheDocument();
+      expect(screen.getByText('Transport')).toBeInTheDocument();
+    
     });
 });
 
@@ -176,7 +171,7 @@ test('successful date range selection updates state and fetches data', async () 
     await waitFor(() => {
     expect(screen.getByLabelText('From:').value).toBe('2023-01-01');
     expect(screen.getByLabelText('To:').value).toBe('2023-01-31');
-    expect(global.fetch).toHaveBeenCalled(); // Verify that fetch is called after updating the dates
+    expect(global.fetch).toHaveBeenCalled(); 
     });
 });
 
@@ -185,8 +180,6 @@ test('handles invalid date range selection', () => {
     fireEvent.change(screen.getByLabelText('From:'), { target: { value: '2023-01-31' } });
     fireEvent.change(screen.getByLabelText('To:'), { target: { value: '2023-01-01' } });
     fireEvent.click(screen.getByRole('button', { name: 'Select Range' }));
-
-    // Check for an error message or UI indication that the date range is invalid
     expect(screen.getByText('Invalid date range')).toBeInTheDocument();
 });
   
@@ -199,14 +192,13 @@ test('renders the Header component', () => {
 test('visibility of charts based on data availability', async () => {
     global.fetch.mockImplementationOnce(() =>
     Promise.resolve({
-        json: () => Promise.resolve({ expenses: [], budget: 500 }), // No expenses data
+        json: () => Promise.resolve({ expenses: [], budget: 500 }), 
         ok: true,
     })
     );
 
     render(<Dashboard />);
     await waitFor(() => {
-    // Assuming the charts are not displayed when there is no expenses data
     expect(screen.queryByTestId('expense-pie-chart')).not.toBeInTheDocument();
     expect(screen.queryByTestId('expense-scatter-chart')).not.toBeInTheDocument();
     });

@@ -1,7 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginPage from './LoginPage';
 
-// Mocking localStorage
 const localStorageMock = (function() {
   let store = {};
   return {
@@ -21,7 +20,6 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
 
-// Mocking Fetch API
 beforeEach(() => {
   global.fetch = jest.fn(() =>
     Promise.resolve({
@@ -49,16 +47,12 @@ test('initial state is set correctly', () => {
   render(<LoginPage />);
   expect(screen.getByPlaceholderText('Username')).toHaveValue('');
   expect(screen.getByPlaceholderText('Password')).toHaveValue('');
-  // Checking initial state for sign-up fields, if they are rendered initially
   expect(screen.getByPlaceholderText('First Name')).toHaveValue('');
   expect(screen.getByPlaceholderText('Last Name')).toHaveValue('');
   expect(screen.getByPlaceholderText('Email')).toHaveValue('');
   expect(screen.getByPlaceholderText('Register Username')).toHaveValue('');
   expect(screen.getByPlaceholderText('Register Password')).toHaveValue('');
   expect(screen.getByPlaceholderText('Confirm Password')).toHaveValue('');
-
-  // Check for the initial state of any error messages
-  //expect(screen.queryByText('Error message text')).not.toBeInTheDocument();
 });
 
 test('submits sign-in form with valid credentials', async () => {
@@ -122,12 +116,11 @@ test('sign up form validation for empty fields', () => {
     const { getByText, getByPlaceholderText } = render(<LoginPage />);
   
     fireEvent.click(getByText('Sign Up'));
-    fireEvent.change(getByPlaceholderText('Username'), { target: { value: '' } }); // Leaving username empty
+    fireEvent.change(getByPlaceholderText('Username'), { target: { value: '' } }); 
     fireEvent.change(getByPlaceholderText('Password'), { target: { value: 'password123' } });
     fireEvent.change(getByPlaceholderText('Confirm Password'), { target: { value: 'password123' } });
     fireEvent.click(getByText('Create Account'));
   
-    // Assuming an alert or error message for empty fields
     expect(screen.getByText('Please fill in all fields')).toBeInTheDocument();
 });
 
@@ -143,7 +136,6 @@ test('successful sign up', async () => {
     fireEvent.click(getByText('Create Account'));
   
     await waitFor(() => {
-        // Check for a successful sign up indication, like a welcome message or redirect
         expect(screen.getByText('Welcome newuser!')).toBeInTheDocument();
     });
 });
@@ -158,8 +150,7 @@ test('displays error message on sign up failure', async () => {
     );
 
     const { getByText, getByPlaceholderText } = render(<LoginPage />);
-    
-    // Trigger the sign-up view
+  
     fireEvent.click(getByText('Sign Up'));
     fireEvent.change(getByPlaceholderText('First Name'), { target: { value: 'John' } });
     fireEvent.change(getByPlaceholderText('Last Name'), { target: { value: 'Doe' } });
