@@ -45,6 +45,3 @@ def settle_expenses(expenses):
 
     return settlements
 
-# Example:
-# expenses = [{'payer': '65605508cce4c379f2491909', 'amount': 30.0, 'shares': {'65616d9909d69e11fc878852': 50, '65605508cce4c379f2491909': 50}}, {'payer': '65616d9909d69e11fc878852', 'amount': 60.0, 'shares': {'65616d9909d69e11fc878852': 50, '65605508cce4c379f2491909': 50}}, {'payer': '65605508cce4c379f2491909', 'amount': 15.0, 'shares': {'65616d9909d69e11fc878852': 100}}, {'payer': '65605508cce4c379f2491909', 'amount': 100.0, 'shares': {'65605508cce4c379f2491909': 60, '65616d9909d69e11fc878852': 40}}]
-# print(settle_expenses(expenses))

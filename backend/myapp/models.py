@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-password = os.getenv("password")
+password = os.getenv("DB_PASSWORD")
 
 
-dataBase_name = "ExpenseManagDB"
+dataBase_name = os.getenv("DB_NAME")
 
 DB_URI = "mongodb+srv://abgupta:{}@cluster0.u08th6y.mongodb.net/{}?retryWrites=true&w=majority".format(password, dataBase_name)
 
