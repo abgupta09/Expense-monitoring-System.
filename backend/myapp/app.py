@@ -22,20 +22,21 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 # Connect to MongoDB using mongoengine
-password =  "IcWKBLzlI8shsDHO" #os.getenv("password")
-dataBase_name = "ExpenseManagDB"
+password = os.getenv("PASSWORD")
+dataBase_name = os.getenv("DBNAME")
 DB_URI = "mongodb+srv://abgupta:{}@cluster0.u08th6y.mongodb.net/{}?retryWrites=true&w=majority".format(password, dataBase_name)
 db.connect(host=DB_URI, tlsCAFile=certifi.where())
 
 # key and config
-SECRET_KEY = "your_secret_key_here" 
-app.config['SECRET_KEY'] = "your_secret_key_here"
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 
 app.config["MAIL_SERVER"] = "smtp.fastmail.com"
 app.config["MAIL_PORT"] = 465
 app.config["MAIL_USERNAME"] = "abhigupta@fastmail.com"
-app.config["MAIL_PASSWORD"] = "3rb9f8kufbyy2hv2"  # Add your mail password here
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 app.config["MAIL_USE_TLS"] = False
 app.config["MAIL_USE_SSL"] = True
 mail = Mail(app)
